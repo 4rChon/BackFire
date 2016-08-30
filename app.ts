@@ -59,11 +59,11 @@ interface ISystem {
 }
 
 class GraphicsSystem implements ISystem {    
-    public id: string;
+    public id: string = "";
     public canvasContext: CanvasRenderingContext2D;
 
-    constructor(id: string) {
-        this.id = id;
+    constructor() {
+        this.id = "Graphics";
     }
 
     public init = (): void => {
@@ -87,6 +87,51 @@ class GraphicsSystem implements ISystem {
     }
 }
 
+class InputSystem implements ISystem {
+    public id: string = "";
+
+    public keyCallback: { [keycode: number]: () => void; } = {};
+    public keyDown: { [keycode: number]: boolean; } = {};
+
+    constructor() {
+        this.id = "Input";
+    }
+
+    public init = (): void => {
+        document.addEventListener('keydown', this.keyboardDown);
+        document.addEventListener('keyup', this.keyboardUp);
+    }
+
+    public keyboardDown = (event: KeyboardEvent): void => {
+        event.preventDefault();
+        this.keyDown[event.keyCode] = true;
+    }
+
+    public keyboardUp = (event: KeyboardEvent): void => {
+        this.keyDown[event.keyCode] = false;
+    }
+
+    public addKeycodeCallback = (keycode: number, f: () => void): void => {
+        this.keyCallback[keycode] = f;
+        this.keyDown[keycode] = false;
+    }
+
+    public update = (): void => {
+        for (var key in this.keyDown) {
+            var is_down: boolean = this.keyDown[key];
+            if (is_down) {
+                var callback: () => void = this.keyCallback[key];
+                if (callback != null) {
+                    callback();
+                }
+            }
+        }
+    }
+
+    public finit = (): void => {
+    }
+}
+
 interface IComponent {
     id: string;
 
@@ -94,23 +139,59 @@ interface IComponent {
 }
 
 class PlayerGraphics implements IComponent {
-    public id: string;        
-    public width: number;
-    public height: number;
-    public color: string;
+    public id: string = "";
 
-    constructor(id: string, width: number, height: number, color: string) {
-        this.id = id;
-        this.width = width;
-        this.height = height;
-        this.color = color;
+    constructor() {
+        this.id = "Graphics";
     }
 
     update = (attribute: { [name: string]: IAttribute }): void => {
-        let transform: Attribute = attribute["Transform"];
+        let transform = attribute["Transform"];
+        let sprite = attribute["Sprite"];
+
         let ctxt: CanvasRenderingContext2D = (<GraphicsSystem>systems.system["Graphics"]).canvasContext;
-        ctxt.fillStyle = this.color;
+
+        ctxt.fillStyle = sprite.val['color'];
         ctxt.fillRect(transform.val['x'], transform.val['y'], transform.val['w'], transform.val['h']);
+    }
+}
+
+class PlayerInput implements IComponent {
+    public id: string = "";
+
+    constructor() {
+        this.id = "Input";
+
+        let inputSystem = <InputSystem>systems.system["Input"];
+
+        inputSystem.addKeycodeCallback(65, this.left);
+        inputSystem.addKeycodeCallback(87, this.up);
+        inputSystem.addKeycodeCallback(83, this.down);
+        inputSystem.addKeycodeCallback(68, this.right);
+        inputSystem.addKeycodeCallback(32, this.fire);
+    }
+
+    update = (attribute: { [name: string]: IAttribute }): void => {
+    }
+
+    left = (): void => {
+        console.log("left");
+    }
+
+    up = (): void => {
+        console.log("up");
+    }
+
+    down = (): void => {
+        console.log("down");
+    }
+
+    right = (): void => {
+        console.log("right");
+    }
+
+    fire = (): void => {
+        console.log("fire");
     }
 }
 
@@ -173,16 +254,23 @@ class Entity implements IEntity {
 function gameLoop() {
     requestAnimationFrame(gameLoop);
     systems.updateSystems();
-    entities.updateEntities();    
+    entities.updateEntities();
 }
 
 let systems = new SystemContext();
 let entities = new EntityContext();
 
 window.onload = () => {    
-    systems.addSystem(new GraphicsSystem("Graphics"));
-    let playerComponents = [new PlayerGraphics("Graphics", 50, 50, "black")];
-    let playerAttributes = [new Attribute("Transform", { 'x': 50, 'y': 50, 'w': 10, 'h': 10 })];
+    systems.addSystem(new GraphicsSystem());
+    systems.addSystem(new InputSystem());
+
+    let playerComponents = [
+        new PlayerGraphics(),
+        new PlayerInput()
+    ];
+    let playerAttributes = [
+        new Attribute("Transform", { 'x': 50, 'y': 50, 'w': 10, 'h': 10 }),
+        new Attribute("Sprite", { 'color': "black" })];    
     let player = new Entity(playerComponents, playerAttributes);
     entities.addEntity(player);
 
