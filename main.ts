@@ -12,17 +12,21 @@ class SystemContext {
         this.system = {};
     }
 
-    public addSystem(system: ISystem) {
+    public addSystem = (system: ISystem): void => {
         system.init();
         this.system[system.id] = system;
     }
 
-    public removeSystem(name: string) {
-        this.system[name].finit();
-        delete this.system[name];
+    public getSystem = (name: string): ISystem => {
+        return this.system[name];
     }
 
-    public updateSystems() {
+    public removeSystem = (name: string): void => {
+        this.system[name].finit();
+        delete this.system[name];
+    }    
+
+    public updateSystems = (): void => {
         for (let key in this.system) {
             this.system[key].update();
         }
@@ -32,23 +36,34 @@ class SystemContext {
 class EntityContext {
     public entity: { [index: number]: IEntity };
     private index: number;
+    private player: IEntity;
 
     constructor() {
         this.index = 0;
         this.entity = {};
-    }
+    }    
 
-    public addEntity(entity: IEntity) {
+    public addEntity = (entity: IEntity): void => {
         entity.init();
+        if(entity.attribute["Game"].val["Type"] === "Player")
+            this.player = entity;
         this.entity[this.index++] = entity;
     }
 
-    public removeEntity(index: number) {
+    public getEntity = (index: number): IEntity => {
+        return this.entity[index];
+    }
+
+    public getPlayer = (): IEntity => {
+        return this.player;
+    }
+
+    public removeEntity = (index: number): void => {
         this.entity[index].finit();
         delete this.entity[index];
     }
 
-    public updateEntities() {
+    public updateEntities = (): void => {
         for (let key in this.entity) {
             this.entity[key].update();
         }
@@ -157,6 +172,7 @@ class GameSystem implements ISystem {
     public id: string = "";
 
     private spawnTimer: number = 0;
+    private maxTimer: number = 10;
     
     constructor() {
         this.id = "Game";
@@ -169,7 +185,7 @@ class GameSystem implements ISystem {
 
     public update = (): void => {
         this.spawnTimer++;
-        if(this.spawnTimer == 50)
+        if(this.spawnTimer == this.maxTimer)
         {
             let x: number = Math.floor((Math.random() * WIDTH) + 1);
             let y: number = Math.floor((Math.random() * HEIGHT) + 1);
@@ -192,7 +208,8 @@ class GameSystem implements ISystem {
         let playerAttributes = [
             new Attribute("Transform", { 'x': x, 'y': y, 'w': 10, 'h': 10 }),
             new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 })
+            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
+            new Attribute("Game", {'Type': 'Player'})
         ];    
         
         let player = new Entity(playerComponents, playerAttributes);
@@ -203,13 +220,15 @@ class GameSystem implements ISystem {
     spawnEnemy = (x: number, y: number): void => {
         let enemyComponents = [
             new EntityGraphics(),
-            new EntityPhysics()
+            new EntityPhysics(),
+            new EnemyAI()
         ];
 
         let enemyAttributes = [
             new Attribute("Transform", { 'x': x, 'y': y, 'w': 15, 'h': 15}),
-            new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 25 })
+            new Attribute("Sprite", { 'color': "red" }),
+            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 25 }),
+            new Attribute("Game", {'Type': 'Enemy'})
         ]
 
         let enemy = new Entity(enemyComponents, enemyAttributes);
@@ -316,6 +335,29 @@ class PlayerInput implements IComponent {
 
     public fire = (): void => {
         console.log("fire");
+    }
+}
+
+class EnemyAI{
+    public id: string = "";
+
+    constructor() {
+        this.id = "AI";
+    }
+
+    public update = (attribute: {[name: string]: IAttribute}): void => {
+        let player = entities.getPlayer();
+        let playerTransform = player.attribute["Transform"].val;
+        let enemyPhysics = attribute["Physics"].val;
+
+        if(playerTransform['x'] < attribute["Transform"].val['x'])
+            enemyPhysics['dx'] -= enemyPhysics['acceleration'];
+        if(playerTransform['x'] > attribute["Transform"].val['x'])
+            enemyPhysics['dx'] += enemyPhysics['acceleration'];
+        if(playerTransform['y'] < attribute["Transform"].val['y'])
+            enemyPhysics['dy'] -= enemyPhysics['acceleration'];
+        if(playerTransform['y'] > attribute["Transform"].val['y'])
+            enemyPhysics['dy'] += enemyPhysics['acceleration'];            
     }
 }
 
