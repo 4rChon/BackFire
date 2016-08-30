@@ -34,20 +34,21 @@ class SystemContext {
 }
 
 class EntityContext {
-    public entity: { [index: number]: IEntity };
-    private index: number;
+    public entity: { [index: string]: IEntity };
+    private index: number;    
     private player: IEntity;
 
     constructor() {
-        this.index = 0;
         this.entity = {};
+        this.index = 0;
     }    
 
-    public addEntity = (entity: IEntity): void => {
-        entity.init();
+    public addEntity = (entity: IEntity): void => {        
+        this.entity[this.index] = (entity);
+        entity.init(this.index++);
         if(entity.attribute["Game"].val["type"] === "Player")
             this.player = entity;
-        this.entity[this.index++] = entity;
+        console.log("Create: " + entity.index + ' : ' + entity.attribute['Game'].val['type']);        
     }
 
     public getEntity = (index: number): IEntity => {
@@ -58,8 +59,8 @@ class EntityContext {
         return this.player;
     }
 
-    public removeEntity = (index: number): void => {
-        this.entity[index].finit();
+    public removeEntity = (index: number): void => {        
+        console.log("Destroy: " + this.entity[index] + ' : ' + this.entity[index].attribute['Game'].val['type']);
         delete this.entity[index];
     }
 
@@ -366,10 +367,10 @@ class PlayerInput implements IComponent {
             let dx = this.physics.val['dx'];
             let dy = this.physics.val['dy'];
             
-            if(dx == 0)
+            if(dx == 0 && dy == 0){
                 dx = this.lastDx;
-            if(dy == 0)
                 dy = this.lastDy;
+            }
 
             dx = -sign(<number>dx) * this.weapon.val['power'];
             dy = -sign(<number>dy) * this.weapon.val['power'];
@@ -415,7 +416,7 @@ class BulletAI {
 
     public update = (attribute: {[name: string]: IAttribute}): void => {
         if(attribute["Physics"].val['dx'] == 0 && attribute["Physics"].val['dy'] == 0)
-            attribute["Game"].val['Active'] = false;
+            attribute["Game"].val['active'] = false;
     }
 }
 
@@ -435,18 +436,18 @@ class Attribute implements IAttribute {
 }
 
 interface IEntity {
+    index: number;
+
     component: { [name: string]: IComponent };
     attribute: { [name: string]: IAttribute };
 
-    init(): void;
+    init(index: number): void;
     update(): void;
     finit(): void;
 }
 
 class Entity implements IEntity {
-
-    public x: number;
-    public y: number;
+    public index: number;
 
     public component: { [name: string]: IComponent };
     public attribute: { [name: string]: IAttribute };
@@ -462,16 +463,24 @@ class Entity implements IEntity {
         }
     }
 
-    init = (): void => {
+    init = (index: number): void => {
+        this.index = index;
     }
 
     update = (): void => {
+        if(!this.attribute["Game"].val['active'])
+        {
+            this.finit();
+            return;
+        }
+
         for (let key in this.component) {
             this.component[key].update(this.attribute);
         }
     }
 
     finit = (): void => {
+        entities.removeEntity(this.index);
     }
 }
 
