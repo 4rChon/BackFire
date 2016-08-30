@@ -45,7 +45,7 @@ class EntityContext {
 
     public addEntity = (entity: IEntity): void => {
         entity.init();
-        if(entity.attribute["Game"].val["Type"] === "Player")
+        if(entity.attribute["Game"].val["type"] === "Player")
             this.player = entity;
         this.entity[this.index++] = entity;
     }
@@ -172,7 +172,7 @@ class GameSystem implements ISystem {
     public id: string = "";
 
     private spawnTimer: number = 0;
-    private maxTimer: number = 10;
+    private maxTimer: number = 25;
     
     constructor() {
         this.id = "Game";
@@ -209,7 +209,8 @@ class GameSystem implements ISystem {
             new Attribute("Transform", { 'x': x, 'y': y, 'w': 10, 'h': 10 }),
             new Attribute("Sprite", { 'color': "black" }),
             new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
-            new Attribute("Game", {'Type': 'Player'})
+            new Attribute("Game", {'type': 'Player', 'active': true}),
+            new Attribute("Weapon", {'rate': 5, 'power': 20})
         ];    
         
         let player = new Entity(playerComponents, playerAttributes);
@@ -227,14 +228,32 @@ class GameSystem implements ISystem {
         let enemyAttributes = [
             new Attribute("Transform", { 'x': x, 'y': y, 'w': 15, 'h': 15}),
             new Attribute("Sprite", { 'color': "red" }),
-            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 25 }),
-            new Attribute("Game", {'Type': 'Enemy'})
+            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
+            new Attribute("Game", {'type': 'Enemy', 'active': true})
         ]
 
         let enemy = new Entity(enemyComponents, enemyAttributes);
 
         entities.addEntity(enemy);
+    }
 
+    spawnBullet = (x: number, y: number, dx: number, dy: number): void => {
+        let bulletComponents = [
+            new EntityGraphics(),
+            new EntityPhysics(),
+            new BulletAI()
+        ];
+
+        let bulletAttributes = [
+            new Attribute("Transform", { 'x': x, 'y': y, 'w': 5, 'h': 5}),
+            new Attribute("Sprite", {'color': "black"}),
+            new Attribute("Physics", {'dx': dx, 'dy': dy, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100}),
+            new Attribute("Game", {'type': 'Bullet', 'active': true})        
+        ]
+
+        let bullet = new Entity(bulletComponents, bulletAttributes);
+
+        entities.addEntity(bullet);
     }
 }
 
@@ -292,9 +311,15 @@ class PlayerInput implements IComponent {
     public id: string = "";
 
     private physics: IAttribute;
+    private transform: IAttribute;
+    private weapon: IAttribute;
+    private cooldown: number;
+    private lastDx: number = 1;
+    private lastDy: number = 0;
 
     constructor() {
         this.id = "Input";
+        this.cooldown = 0;
 
         let inputSystem = <InputSystem>systems.system["Input"];
 
@@ -306,7 +331,10 @@ class PlayerInput implements IComponent {
     }
 
     public update = (attribute: { [name: string]: IAttribute }): void => {
-        this.physics = attribute["Physics"]; 
+        this.physics = attribute["Physics"];
+        this.transform = attribute["Transform"];
+        this.weapon = attribute["Weapon"];
+        this.cooldown++;
     }
 
     public left = (): void => {
@@ -334,11 +362,28 @@ class PlayerInput implements IComponent {
     }
 
     public fire = (): void => {
-        console.log("fire");
+        if(this.cooldown >= this.weapon.val['rate']){
+            let dx = this.physics.val['dx'];
+            let dy = this.physics.val['dy'];
+            
+            if(dx == 0)
+                dx = this.lastDx;
+            if(dy == 0)
+                dy = this.lastDy;
+
+            dx = -sign(<number>dx) * this.weapon.val['power'];
+            dy = -sign(<number>dy) * this.weapon.val['power'];
+
+            this.lastDx = dx;
+            this.lastDy = dy;
+        
+            (<GameSystem>systems.system["Game"]).spawnBullet(this.transform.val['x'], this.transform.val['y'], dx, dy);
+            this.cooldown = 0;
+        }
     }
 }
 
-class EnemyAI{
+class EnemyAI {
     public id: string = "";
 
     constructor() {
@@ -358,6 +403,19 @@ class EnemyAI{
             enemyPhysics['dy'] -= enemyPhysics['acceleration'];
         if(playerTransform['y'] > attribute["Transform"].val['y'])
             enemyPhysics['dy'] += enemyPhysics['acceleration'];            
+    }
+}
+
+class BulletAI {
+    public id: string = "";
+
+    constructor() {
+        this.id = "AI";
+    }
+
+    public update = (attribute: {[name: string]: IAttribute}): void => {
+        if(attribute["Physics"].val['dx'] == 0 && attribute["Physics"].val['dy'] == 0)
+            attribute["Game"].val['Active'] = false;
     }
 }
 
