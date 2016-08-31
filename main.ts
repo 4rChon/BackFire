@@ -207,6 +207,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillText("y", 50, 50);
         this.canvasContext.fillText("+", 70, 50);
         this.canvasContext.fillText("-" + entities.getPlayer().attribute['Weapon'].val['cooldown'], 90, 50);
+        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).weaponRateCost + ')', 130, 50);
     }
 
     private renderPower = (): void => {
@@ -215,6 +216,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillText("u", 50, 100);
         this.canvasContext.fillText("+", 70, 100);
         this.canvasContext.fillText("*" + entities.getPlayer().attribute['Weapon'].val['power'], 90, 100);
+        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).weaponPowerCost + ')', 130, 100);
     }
 
     private renderSpawnRate = (): void => {
@@ -223,6 +225,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillText("i", 50, 150);
         this.canvasContext.fillText("+", 70, 150);
         this.canvasContext.fillText("/" + (<GameSystem>systems.getSystem('Game')).spawnTimerMax, 90, 150);
+        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).spawnTimerCost + ')', 130, 150);
     }
 
     private renderSpawnAmount = (): void => {
@@ -231,6 +234,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillText("o", 50, 200);
         this.canvasContext.fillText("+", 70, 200);
         this.canvasContext.fillText("x" + (<GameSystem>systems.getSystem('Game')).spawnAmount, 90, 200);
+        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).spawnAmountCost + ')', 130, 200);
     }
 }
 
@@ -313,8 +317,14 @@ class GameSystem implements ISystem {
     private score: number = 0;
     private currentScore: number = 0;
     private spawnTimer: number = 0;
+
     public spawnAmount: number = 0;
-    public spawnTimerMax: number = 0;    
+    public spawnAmountCost: number = 0;
+    public spawnTimerMax: number = 0;
+    public spawnTimerCost: number = 0;
+
+    public weaponPowerCost: number = 0;
+    public weaponRateCost: number = 0;
     
     constructor() {        
         this.id = 'Game';
@@ -325,6 +335,12 @@ class GameSystem implements ISystem {
         this.state = SystemState.Init;
         this.score = 0;
         this.currentScore = 0;
+
+        this.spawnAmountCost = 100;
+        this.spawnTimerCost = 100;
+        this.weaponPowerCost = 100;
+        this.weaponRateCost = 100;
+
         this.spawnTimer = 0;
         this.spawnAmount = 1;
         this.spawnTimerMax = 25;
@@ -343,7 +359,7 @@ class GameSystem implements ISystem {
 
     private updateSpawn = (): void => {        
         this.spawnTimer++;
-        if (this.spawnTimer == this.spawnTimerMax) {
+        if (this.spawnTimer >= this.spawnTimerMax) {
             for (let i = 0; i < this.spawnAmount; i++){
                 let x: number = Math.floor((Math.random() * WIDTH) + 1);
                 let y: number = Math.floor((Math.random() * HEIGHT) + 1);
@@ -377,14 +393,15 @@ class GameSystem implements ISystem {
     }
 
     public upgradePower = (): void => {
-        if (this.score < 100) {
+        if (this.score < this.weaponPowerCost) {
             console.log("Not enough score");
             return;
         }
 
         let weapon = entities.getPlayer().attribute['Weapon'];
 
-        this.score -= 100;
+        this.score -= this.weaponPowerCost;
+        this.weaponPowerCost += 25;
         weapon.val['power']++;
     }
 
@@ -394,36 +411,39 @@ class GameSystem implements ISystem {
         if (weapon.val['cooldown'] == 1) {
             console.log("Already at minimum cooldown");
             return;
-        }
+        }         
 
-        if (this.score < 100) {
+        if (this.score < this.weaponRateCost) {
             console.log("Not enough score");
             return;
         }
 
-        this.score -= 100;
+        this.score -= this.weaponRateCost;
+        this.weaponRateCost += 50;
         weapon.val['cooldown']--;
     }
 
     public upgradeSpawnRate = (): void => {
-        if (this.score < 100) {
+        if (this.score < this.spawnTimerCost) {
             console.log("Not enough score");
             return;
         }
 
-        this.score -= 100;
+        this.score -= this.spawnTimerCost;
+        this.spawnTimerCost += 75;
         if (this.spawnTimerMax > 0) {
             this.spawnTimerMax--;
         }
     }
 
     public upgradeSpawnAmount = (): void => {
-        if (this.score < 100) {
+        if (this.score < this.spawnAmountCost) {
             console.log("Not enough score");
             return;
         }
 
-        this.score -= 100;
+        this.score -= this.spawnAmountCost;
+        this.spawnAmountCost *= 2;
         this.spawnAmount++;
     }
 
@@ -603,8 +623,8 @@ class PlayerInput implements IComponent {
         inputSystem.addKeycodeCallback(83, this.down);
         inputSystem.addKeycodeCallback(68, this.right);
         //inputSystem.addKeycodeCallback(32, this.fire);
-        inputSystem.addKeycodeCallback(89, gameSystem.upgradePower);
-        inputSystem.addKeycodeCallback(85, gameSystem.upgradeCooldown);
+        inputSystem.addKeycodeCallback(89, gameSystem.upgradeCooldown);
+        inputSystem.addKeycodeCallback(85, gameSystem.upgradePower);
         inputSystem.addKeycodeCallback(73, gameSystem.upgradeSpawnRate);
         inputSystem.addKeycodeCallback(79, gameSystem.upgradeSpawnAmount);
     }
