@@ -272,6 +272,7 @@ class GameSystem implements ISystem {
         let playerComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
+            new EntityCollision(),
             new PlayerInput()
         ];
         
@@ -279,7 +280,8 @@ class GameSystem implements ISystem {
             new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "black" }),
             new Attribute("Physics", { 'velocity': velocity, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
-            new Attribute("Game", {'type': 'Player', 'active': true}),
+            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
+            new Attribute("Game", {'index': -1, 'type': 'Player', 'active': true}),
             new Attribute("Weapon", {'rate': 5, 'power': 20})
         ];    
         
@@ -292,6 +294,7 @@ class GameSystem implements ISystem {
         let enemyComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
+            new EntityCollision(),
             new EnemyAI()
         ];
 
@@ -299,7 +302,8 @@ class GameSystem implements ISystem {
             new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "red" }),
             new Attribute("Physics", { 'velocity': velocity, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
-            new Attribute("Game", {'type': 'Enemy', 'active': true})
+            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
+            new Attribute("Game", { 'index': -1, 'type': 'Enemy', 'active': true})
         ]
 
         let enemy = new Entity(enemyComponents, enemyAttributes);
@@ -311,6 +315,7 @@ class GameSystem implements ISystem {
         let bulletComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
+            new EntityCollision(),
             new BulletAI()
         ];
 
@@ -318,7 +323,8 @@ class GameSystem implements ISystem {
             new Attribute("Transform", { 'position': position, dimensions }),
             new Attribute("Sprite", {'color': "black"}),
             new Attribute("Physics", { 'velocity': velocity, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100}),
-            new Attribute("Game", {'type': 'Bullet', 'active': true})        
+            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
+            new Attribute("Game", { 'index': -1, 'type': 'Bullet', 'active': true})        
         ]
 
         let bullet = new Entity(bulletComponents, bulletAttributes);
@@ -360,7 +366,7 @@ class EntityPhysics implements IComponent {
 
     update = (attribute: { [name: string]: IAttribute }): void => {
         let transform = attribute["Transform"];
-        let physics = attribute["Physics"];
+        let physics = attribute["Physics"];        
 
         if (physics.val['velocity'].magnitude() > physics.val['terminalVelocity']) {
             physics.val['velocity'].setMagnitude(physics.val['terminalVelocity']);
@@ -374,6 +380,50 @@ class EntityPhysics implements IComponent {
                 physics.val['velocity'].zero();
             else
                 physics.val['velocity'].setMagnitude(magnitude - physics.val['drag']);
+        }
+    }
+}
+
+class EntityCollision implements IComponent {
+    public id: string = "";
+
+    constructor() {
+        this.id = "Collision";
+    }
+
+    public update = (attribute: { [name: string]: IAttribute }): void => {
+        let entityList = entities.entity;
+        for (let key in entityList) {
+            if (key == attribute["Game"].val['index'])
+                continue;
+
+            if (attribute["Collision"].val['collidingWith'] !== 'Nothing')
+                return;
+
+            let collideWith: { [name: string]: Vector } = {};
+
+            collideWith['position'] = entityList[key].attribute["Transform"].val['position'];
+            collideWith['dimensions'] = entityList[key].attribute["Transform"].val['dimensions'];
+
+            let dimensions: Vector = new Vector(0, 0);
+
+            dimensions.add(collideWith['dimensions']);
+            dimensions.add(attribute["Transform"].val['dimensions']);
+            dimensions.multiply(0.5);
+
+            let difference: Vector = new Vector(0, 0);
+
+            difference.copy(collideWith['position']);
+            difference.subtract(attribute["Transform"].val['position']);
+            difference.x = Math.abs(difference.x);
+            difference.y = Math.abs(difference.y);
+
+            if (difference.x < dimensions.x && difference.y < dimensions.y) {
+                attribute["Collision"].val['collidingWith'] = entityList[key].attribute["Game"].val['type'];
+                entityList[key].attribute["Collision"].val['collidingWith'] = attribute["Game"].val['type'];
+                console.log(attribute["Collision"].val['collidingWith']);
+            }
+
         }
     }
 }
@@ -469,7 +519,9 @@ class EnemyAI {
         if (playerTransform['position'].y < attribute["Transform"].val['position'].y)
             enemyPhysics['velocity'].y -= enemyPhysics['acceleration'];
         if (playerTransform['position'].y > attribute["Transform"].val['position'].y)
-            enemyPhysics['velocity'].y += enemyPhysics['acceleration'];            
+            enemyPhysics['velocity'].y += enemyPhysics['acceleration'];
+        if (attribute["Collision"].val['collidingWith'] === 'Bullet')
+            attribute["Game"].val['active'] = false;
     }
 }
 
@@ -480,9 +532,12 @@ class BulletAI {
         this.id = "AI";
     }
 
-    public update = (attribute: {[name: string]: IAttribute}): void => {
-        if(attribute["Physics"].val['velocity'].magnitude() == 0)
+    public update = (attribute: { [name: string]: IAttribute }): void => {
+        if (attribute["Physics"].val['velocity'].magnitude() == 0)
             attribute["Game"].val['active'] = false;
+        if (attribute["Collision"].val['collidingWith'] === 'Enemy')
+            attribute["Game"].val['active'] = false;
+
     }
 }
 
@@ -502,8 +557,6 @@ class Attribute implements IAttribute {
 }
 
 interface IEntity {
-    index: number;
-
     component: { [name: string]: IComponent };
     attribute: { [name: string]: IAttribute };
 
@@ -513,8 +566,6 @@ interface IEntity {
 }
 
 class Entity implements IEntity {
-    public index: number;
-
     public component: { [name: string]: IComponent };
     public attribute: { [name: string]: IAttribute };
 
@@ -530,7 +581,7 @@ class Entity implements IEntity {
     }
 
     init = (index: number): void => {
-        this.index = index;
+        this.attribute["Game"].val['index'] = index;
     }
 
     update = (): void => {
@@ -546,7 +597,7 @@ class Entity implements IEntity {
     }
 
     finit = (): void => {
-        entities.removeEntity(this.index);
+        entities.removeEntity(this.attribute["Game"].val['index']);
     }
 }
 
