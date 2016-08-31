@@ -1,6 +1,75 @@
 ﻿const WIDTH = 1024;
 const HEIGHT = 1024;
 
+class Vector {
+    public x: number = 0;
+    public y: number = 0;
+
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public magnitude = (): number => {
+        return Math.sqrt(this.x * this.x + this.y * this.y);
+    }
+
+    public setMagnitude = (magnitude: number): void => {
+        let angle = this.getAngle();
+        this.x = magnitude * Math.cos(angle);
+        this.y = magnitude * Math.sin(angle);
+    }
+
+    public magSq = (): number => {
+        return this.x * this.x + this.y * this.y;
+    }
+
+    public normalize = (): Vector => {
+        let len: number = this.magnitude();
+        this.x /= len;
+        this.y /= len;
+        return this;
+    }
+
+    public zero = (): void => {
+        this.x = 0;
+        this.y = 0;
+    }
+
+    public copy = (v: Vector): void => {
+        this.x = v.x;
+        this.y = v.y;
+    }
+
+    public rotate = (radians: number): void => {
+        let cos: number = Math.cos(radians);
+        let sin: number = Math.sin(radians);
+        let x: number = (cos * this.x) + (sin * this.y);
+        let y: number = (cos * this.y) - (sin * this.x);
+        this.x = x;
+        this.y = y;
+    }
+
+    public getAngle = (): number => {
+        return Math.atan2(this.y, this.x);
+    }
+
+    public multiply = (value: number): void => {
+        this.x *= value;
+        this.y *= value;
+    }
+
+    public add = (v: Vector): void => {
+        this.x += v.x;
+        this.y += v.y;
+    }
+
+    public subtract = (v: Vector): void => {
+        this.x -= v.x;
+        this.y -= v.y;
+    }
+}
+
 function sign(x: number) {
     return typeof x === 'number' ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 }
@@ -48,7 +117,6 @@ class EntityContext {
         entity.init(this.index++);
         if(entity.attribute["Game"].val["type"] === "Player")
             this.player = entity;
-        console.log("Create: " + entity.index + ' : ' + entity.attribute['Game'].val['type']);        
     }
 
     public getEntity = (index: number): IEntity => {
@@ -60,7 +128,6 @@ class EntityContext {
     }
 
     public removeEntity = (index: number): void => {        
-        console.log("Destroy: " + this.entity[index] + ' : ' + this.entity[index].attribute['Game'].val['type']);
         delete this.entity[index];
     }
 
@@ -111,8 +178,10 @@ class GraphicsSystem implements ISystem {
 class PhysicsSystem implements ISystem {
     public id: string = "";
 
-    init = (): void => {
+    public timeDelta: number = 1;
 
+    init = (): void => {
+        this.id = "Physics";
     }
 
     update = (): void => {
@@ -181,7 +250,7 @@ class GameSystem implements ISystem {
     }
 
     public init = (): void => {
-        this.spawnPlayer(WIDTH/2, HEIGHT/2);
+        this.spawnPlayer(new Vector(WIDTH/2, HEIGHT/2), new Vector(10, 10));
     }
 
     public update = (): void => {
@@ -190,7 +259,7 @@ class GameSystem implements ISystem {
         {
             let x: number = Math.floor((Math.random() * WIDTH) + 1);
             let y: number = Math.floor((Math.random() * HEIGHT) + 1);
-            this.spawnEnemy(x, y);
+            this.spawnEnemy(new Vector(x, y), new Vector(10, 10));
             this.spawnTimer = 0;
         }
     }
@@ -199,7 +268,7 @@ class GameSystem implements ISystem {
 
     }
 
-    spawnPlayer = (x: number, y: number): void => {
+    spawnPlayer = (position: Vector, dimensions: Vector): void => {
         let playerComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
@@ -207,9 +276,9 @@ class GameSystem implements ISystem {
         ];
         
         let playerAttributes = [
-            new Attribute("Transform", { 'x': x, 'y': y, 'w': 10, 'h': 10 }),
+            new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
+            new Attribute("Physics", { 'velocity': new Vector(0, 0), 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
             new Attribute("Game", {'type': 'Player', 'active': true}),
             new Attribute("Weapon", {'rate': 5, 'power': 20})
         ];    
@@ -219,7 +288,7 @@ class GameSystem implements ISystem {
         entities.addEntity(player);
     }
 
-    spawnEnemy = (x: number, y: number): void => {
+    spawnEnemy = (position: Vector, dimensions: Vector): void => {
         let enemyComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
@@ -227,9 +296,9 @@ class GameSystem implements ISystem {
         ];
 
         let enemyAttributes = [
-            new Attribute("Transform", { 'x': x, 'y': y, 'w': 15, 'h': 15}),
+            new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "red" }),
-            new Attribute("Physics", {'dx': 0, 'dy': 0, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
+            new Attribute("Physics", { 'velocity': new Vector(0, 0), 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
             new Attribute("Game", {'type': 'Enemy', 'active': true})
         ]
 
@@ -238,7 +307,7 @@ class GameSystem implements ISystem {
         entities.addEntity(enemy);
     }
 
-    spawnBullet = (x: number, y: number, dx: number, dy: number): void => {
+    spawnBullet = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let bulletComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
@@ -246,9 +315,9 @@ class GameSystem implements ISystem {
         ];
 
         let bulletAttributes = [
-            new Attribute("Transform", { 'x': x, 'y': y, 'w': 5, 'h': 5}),
+            new Attribute("Transform", { 'position': position, 'dimensions': dimensions}),
             new Attribute("Sprite", {'color': "black"}),
-            new Attribute("Physics", {'dx': dx, 'dy': dy, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100}),
+            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100}),
             new Attribute("Game", {'type': 'Bullet', 'active': true})        
         ]
 
@@ -278,7 +347,7 @@ class EntityGraphics implements IComponent {
         let ctxt: CanvasRenderingContext2D = (<GraphicsSystem>systems.system["Graphics"]).canvasContext;
 
         ctxt.fillStyle = sprite.val['color'];
-        ctxt.fillRect(transform.val['x'], transform.val['y'], transform.val['w'], transform.val['h']);
+        ctxt.fillRect(transform.val['position'].x, transform.val['position'].y, transform.val['dimensions'].x, transform.val['dimensions'].y);
     }
 }
 
@@ -293,18 +362,21 @@ class EntityPhysics implements IComponent {
         let transform = attribute["Transform"];
         let physics = attribute["Physics"];
 
-        if(Math.abs(<number>physics.val['dx']) > physics.val['terminalVelocity'])
-            physics.val['dx'] = physics.val['terminalVelocity'] * sign(<number>physics.val['dx']);
-        if(Math.abs(<number>physics.val['dy']) > physics.val['terminalVelocity'])
-            physics.val['dy'] = physics.val['terminalVelocity'] * sign(<number>physics.val['dy']);
+        if (physics.val['velocity'].magnitude() > physics.val['terminalVelocity']) {
+            physics.val['velocity'].setMagnitude(physics.val['terminalVelocity']);
+        }
 
-        transform.val['x'] += physics.val['dx'];
-        transform.val['y'] += physics.val['dy'];
+        transform.val['position'].add(physics.val['velocity']);
 
-        if(Math.abs(<number>physics.val['dx']) > 0)
-            physics.val['dx'] -= physics.val['drag'] * sign(<number>physics.val['dx']);
-        if(Math.abs(<number>physics.val['dy']) > 0)
-            physics.val['dy'] -= physics.val['drag'] * sign(<number>physics.val['dy']);
+        let magnitude = physics.val['velocity'].magnitude();
+        if (magnitude > 0) {
+            if (magnitude < physics.val['drag'])
+                physics.val['velocity'].zero();
+            else
+                physics.val['velocity'].setMagnitude(magnitude - physics.val['drag']);
+        }
+
+        console.log(physics.val['velocity'].x, physics.val['velocity'].y);
     }
 }
 
@@ -315,8 +387,7 @@ class PlayerInput implements IComponent {
     private transform: IAttribute;
     private weapon: IAttribute;
     private cooldown: number;
-    private lastDx: number = 1;
-    private lastDy: number = 0;
+    private lastOrientation: Vector = new Vector(1, 0);
 
     constructor() {
         this.id = "Input";
@@ -339,34 +410,34 @@ class PlayerInput implements IComponent {
     }
 
     public left = (): void => {
-        if(this.physics.val['dx'] > 0)
-            this.physics.val['dx'] = 0;
-        this.physics.val['dx'] -= this.physics.val['acceleration'];
+        if (this.physics.val['velocity'].x > 0)
+            this.physics.val['velocity'].x = 0;
+        this.physics.val['velocity'].x -= this.physics.val['acceleration'];
     }
 
     public up = (): void => {
-        if(this.physics.val['dy'] > 0)
-            this.physics.val['dy'] = 0;
-        this.physics.val['dy'] -= this.physics.val['acceleration'];
+        if (this.physics.val['velocity'].y > 0)
+            this.physics.val['velocity'].y = 0;
+        this.physics.val['velocity'].y -= this.physics.val['acceleration'];
     }
 
     public down = (): void => {
-        if(this.physics.val['dy'] < 0)
-            this.physics.val['dy'] = 0;
-        this.physics.val['dy'] += this.physics.val['acceleration'];
+        if (this.physics.val['velocity'].y < 0)
+            this.physics.val['velocity'].y = 0;
+        this.physics.val['velocity'].y += this.physics.val['acceleration'];
     }
 
     public right = (): void => {
-        if(this.physics.val['dx'] < 0)
-            this.physics.val['dx'] = 0;
-        this.physics.val['dx'] += this.physics.val['acceleration'];
+        if (this.physics.val['velocity'].x < 0)
+            this.physics.val['velocity'].x = 0;
+        this.physics.val['velocity'].x += this.physics.val['acceleration'];
     }
 
     public fire = (): void => {
         if(this.cooldown >= this.weapon.val['rate']){
-            let dx = this.physics.val['dx'];
-            let dy = this.physics.val['dy'];
-            
+            let dx = this.physics.val['velocity'].x;
+            let dy = this.physics.val['velocity'].y;
+
             if(dx == 0 && dy == 0){
                 dx = this.lastDx;
                 dy = this.lastDy;
@@ -378,7 +449,7 @@ class PlayerInput implements IComponent {
             this.lastDx = dx;
             this.lastDy = dy;
         
-            (<GameSystem>systems.system["Game"]).spawnBullet(this.transform.val['x'], this.transform.val['y'], dx, dy);
+            (<GameSystem>systems.system["Game"]).spawnBullet(this.transform.val['position'], this.physics.val['velocity']);
             this.cooldown = 0;
         }
     }
@@ -396,14 +467,14 @@ class EnemyAI {
         let playerTransform = player.attribute["Transform"].val;
         let enemyPhysics = attribute["Physics"].val;
 
-        if(playerTransform['x'] < attribute["Transform"].val['x'])
-            enemyPhysics['dx'] -= enemyPhysics['acceleration'];
-        if(playerTransform['x'] > attribute["Transform"].val['x'])
-            enemyPhysics['dx'] += enemyPhysics['acceleration'];
-        if(playerTransform['y'] < attribute["Transform"].val['y'])
-            enemyPhysics['dy'] -= enemyPhysics['acceleration'];
-        if(playerTransform['y'] > attribute["Transform"].val['y'])
-            enemyPhysics['dy'] += enemyPhysics['acceleration'];            
+        if(playerTransform['position'].x < attribute["Transform"].val['position'].x)
+            enemyPhysics['velocity'].x -= enemyPhysics['acceleration'];
+        if (playerTransform['position'].x > attribute["Transform"].val['position'].x)
+            enemyPhysics['velocity'].x += enemyPhysics['acceleration'];
+        if (playerTransform['position'].y < attribute["Transform"].val['position'].y)
+            enemyPhysics['velocity'].y -= enemyPhysics['acceleration'];
+        if (playerTransform['position'].y > attribute["Transform"].val['position'].y)
+            enemyPhysics['velocity'].y += enemyPhysics['acceleration'];            
     }
 }
 
@@ -415,7 +486,7 @@ class BulletAI {
     }
 
     public update = (attribute: {[name: string]: IAttribute}): void => {
-        if(attribute["Physics"].val['dx'] == 0 && attribute["Physics"].val['dy'] == 0)
+        if(attribute["Physics"].val['velocity'].magnitude() == 0)
             attribute["Game"].val['active'] = false;
     }
 }
