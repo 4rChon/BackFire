@@ -432,7 +432,8 @@ class GameSystem implements ISystem {
             new EntityGraphics(),
             new EntityPhysics(),
             new EntityCollision(),
-            new PlayerInput()
+            new PlayerInput(),
+            new PlayerAI()
         ];
         
         let playerAttributes = [
@@ -589,15 +590,11 @@ class PlayerInput implements IComponent {
     public id: string = "";
 
     private physics: IAttribute;
-    private transform: IAttribute;
-    private weapon: IAttribute;
-    private cooldown: number;
-    private lastOrientation: Vector;
+    private transform: IAttribute;    
 
     constructor() {
         this.id = "Input";
-        this.cooldown = 0;
-        this.lastOrientation = new Vector(1, 0);
+        
         let inputSystem = <InputSystem>systems.getSystem("Input");
         let gameSystem = <GameSystem>systems.getSystem("Game");
 
@@ -605,7 +602,7 @@ class PlayerInput implements IComponent {
         inputSystem.addKeycodeCallback(87, this.up);
         inputSystem.addKeycodeCallback(83, this.down);
         inputSystem.addKeycodeCallback(68, this.right);
-        inputSystem.addKeycodeCallback(32, this.fire);
+        //inputSystem.addKeycodeCallback(32, this.fire);
         inputSystem.addKeycodeCallback(89, gameSystem.upgradePower);
         inputSystem.addKeycodeCallback(85, gameSystem.upgradeCooldown);
         inputSystem.addKeycodeCallback(73, gameSystem.upgradeSpawnRate);
@@ -615,8 +612,6 @@ class PlayerInput implements IComponent {
     public update = (attribute: { [name: string]: IAttribute }): void => {
         this.physics = attribute["Physics"];
         this.transform = attribute["Transform"];
-        this.weapon = attribute["Weapon"];
-        this.cooldown++;
     }
 
     public left = (): void => {
@@ -642,23 +637,47 @@ class PlayerInput implements IComponent {
             this.physics.val['velocity'].x = 0;
         this.physics.val['velocity'].x += this.physics.val['acceleration'];
     }
+}
+
+class PlayerAI {
+    public id: string = "";
+
+    private cooldown: number;
+    private lastOrientation: Vector;    
+    private physics: IAttribute;
+    private transform: IAttribute;
+    private weapon: IAttribute;
+
+    constructor() {
+        this.id = "AI";
+        this.cooldown = 0;
+        this.lastOrientation = new Vector(1, 0);
+    }
+
+    public update = (attribute: { [name: string]: IAttribute }): void => {
+        this.physics = attribute['Physics'];
+        this.transform = attribute['Transform'];
+        this.weapon = attribute['Weapon'];
+        this.cooldown++;
+        if (this.cooldown >= this.weapon.val['cooldown']) {
+            this.fire();
+            this.cooldown = 0;
+        }            
+    }
 
     public fire = (): void => {
         let orientation = new Vector(0, 0);
-        if (this.cooldown >= this.weapon.val['cooldown']){
-            orientation.copy(this.physics.val['velocity']);
+        orientation.copy(this.physics.val['velocity']);
 
-            if (orientation.magnitude() == 0) {
-                orientation.copy(this.lastOrientation);
-            }
-
-            orientation.normalize().multiply(-this.weapon.val['power']);
-
-            this.lastOrientation.copy(orientation);
-            let position = this.transform.val['position'];
-            (<GameSystem>systems.getSystem("Game")).spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
-            this.cooldown = 0;
+        if (orientation.magnitude() == 0) {
+            orientation.copy(this.lastOrientation);
         }
+
+        orientation.normalize().multiply(-this.weapon.val['power']);
+
+        this.lastOrientation.copy(orientation);
+        let position = this.transform.val['position'];
+        (<GameSystem>systems.getSystem("Game")).spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
     }
 }
 
