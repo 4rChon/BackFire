@@ -250,7 +250,7 @@ class GameSystem implements ISystem {
     }
 
     public init = (): void => {
-        this.spawnPlayer(new Vector(WIDTH/2, HEIGHT/2), new Vector(10, 10));
+        this.spawnPlayer(new Vector(WIDTH/2, HEIGHT/2), new Vector(0, 0), new Vector(10, 10));
     }
 
     public update = (): void => {
@@ -259,7 +259,7 @@ class GameSystem implements ISystem {
         {
             let x: number = Math.floor((Math.random() * WIDTH) + 1);
             let y: number = Math.floor((Math.random() * HEIGHT) + 1);
-            this.spawnEnemy(new Vector(x, y), new Vector(10, 10));
+            this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
             this.spawnTimer = 0;
         }
     }
@@ -268,7 +268,7 @@ class GameSystem implements ISystem {
 
     }
 
-    spawnPlayer = (position: Vector, dimensions: Vector): void => {
+    spawnPlayer = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let playerComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
@@ -278,7 +278,7 @@ class GameSystem implements ISystem {
         let playerAttributes = [
             new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", { 'velocity': new Vector(0, 0), 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
+            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
             new Attribute("Game", {'type': 'Player', 'active': true}),
             new Attribute("Weapon", {'rate': 5, 'power': 20})
         ];    
@@ -288,7 +288,7 @@ class GameSystem implements ISystem {
         entities.addEntity(player);
     }
 
-    spawnEnemy = (position: Vector, dimensions: Vector): void => {
+    spawnEnemy = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let enemyComponents = [
             new EntityGraphics(),
             new EntityPhysics(),
@@ -298,7 +298,7 @@ class GameSystem implements ISystem {
         let enemyAttributes = [
             new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
             new Attribute("Sprite", { 'color': "red" }),
-            new Attribute("Physics", { 'velocity': new Vector(0, 0), 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
+            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
             new Attribute("Game", {'type': 'Enemy', 'active': true})
         ]
 
@@ -315,7 +315,7 @@ class GameSystem implements ISystem {
         ];
 
         let bulletAttributes = [
-            new Attribute("Transform", { 'position': position, 'dimensions': dimensions}),
+            new Attribute("Transform", { 'position': position, dimensions }),
             new Attribute("Sprite", {'color': "black"}),
             new Attribute("Physics", { 'velocity': velocity, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100}),
             new Attribute("Game", {'type': 'Bullet', 'active': true})        
@@ -375,8 +375,6 @@ class EntityPhysics implements IComponent {
             else
                 physics.val['velocity'].setMagnitude(magnitude - physics.val['drag']);
         }
-
-        console.log(physics.val['velocity'].x, physics.val['velocity'].y);
     }
 }
 
@@ -387,12 +385,12 @@ class PlayerInput implements IComponent {
     private transform: IAttribute;
     private weapon: IAttribute;
     private cooldown: number;
-    private lastOrientation: Vector = new Vector(1, 0);
+    private lastOrientation: Vector;
 
     constructor() {
         this.id = "Input";
         this.cooldown = 0;
-
+        this.lastOrientation = new Vector(1, 0);
         let inputSystem = <InputSystem>systems.system["Input"];
 
         inputSystem.addKeycodeCallback(65, this.left);
@@ -434,22 +432,19 @@ class PlayerInput implements IComponent {
     }
 
     public fire = (): void => {
+        let orientation = new Vector(0, 0);
         if(this.cooldown >= this.weapon.val['rate']){
-            let dx = this.physics.val['velocity'].x;
-            let dy = this.physics.val['velocity'].y;
+            orientation.copy(this.physics.val['velocity']);
 
-            if(dx == 0 && dy == 0){
-                dx = this.lastDx;
-                dy = this.lastDy;
+            if (orientation.magnitude() == 0) {
+                orientation.copy(this.lastOrientation);
             }
 
-            dx = -sign(<number>dx) * this.weapon.val['power'];
-            dy = -sign(<number>dy) * this.weapon.val['power'];
+            orientation.normalize().multiply(-this.weapon.val['power']);
 
-            this.lastDx = dx;
-            this.lastDy = dy;
-        
-            (<GameSystem>systems.system["Game"]).spawnBullet(this.transform.val['position'], this.physics.val['velocity']);
+            this.lastOrientation.copy(orientation);
+            let position = this.transform.val['position'];
+            (<GameSystem>systems.system["Game"]).spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
             this.cooldown = 0;
         }
     }
