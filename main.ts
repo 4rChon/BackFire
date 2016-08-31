@@ -75,7 +75,7 @@ function sign(x: number) {
 }
 
 class SystemContext {
-    public system: { [name: string]: ISystem };
+    private system: { [name: string]: ISystem };
 
     constructor() {
         this.system = {};
@@ -167,8 +167,16 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillRect(0, 0, WIDTH, HEIGHT);
     }
 
+    private renderScore = (): void => {
+        this.canvasContext.fillStyle = "#eee";
+        this.canvasContext.font = "400px Arial";
+        this.canvasContext.textAlign = "center";
+        this.canvasContext.fillText("" + (<GameSystem>systems.getSystem("Game")).getCurrentScore(), WIDTH/2, HEIGHT/2);
+    }
+
     public update = (): void => {
         this.clear();
+        this.renderScore();
     }
 
     public finit = (): void => {
@@ -239,14 +247,19 @@ class InputSystem implements ISystem {
 }
 
 class GameSystem implements ISystem {
-    public id: string = "";
+    public id: string;
 
-    private spawnTimer: number = 0;
-    private maxTimer: number = 25;
+    private score: number;
+    private currentScore: number;
+    private spawnTimer: number;
+    private maxTimer: number;
     
     constructor() {
         this.id = "Game";
+        this.score = 0;
+        this.currentScore = 0;
         this.spawnTimer = 0;
+        this.maxTimer = 25;
     }
 
     public init = (): void => {
@@ -254,14 +267,41 @@ class GameSystem implements ISystem {
     }
 
     public update = (): void => {
+        this.updateSpawn();
+        this.updateScore();
+    }
+
+    private updateSpawn = (): void => {
         this.spawnTimer++;
-        if(this.spawnTimer == this.maxTimer)
-        {
+        if (this.spawnTimer == this.maxTimer) {
             let x: number = Math.floor((Math.random() * WIDTH) + 1);
             let y: number = Math.floor((Math.random() * HEIGHT) + 1);
             this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
             this.spawnTimer = 0;
-        }
+        }  
+    }
+
+    private updateScore = (): void => {
+        if (this.currentScore < this.score)
+            this.currentScore++;
+        else if (this.currentScore > this.score)
+            this.currentScore--;
+    }
+
+    public addScore = (score: number): void => {
+        this.score += score;
+    }
+
+    public reduceScore = (score: number): void => {
+        this.score -= score;
+    }
+
+    public getScore = (): number => {
+        return this.score;
+    }
+
+    public getCurrentScore = (): number => {
+        return this.currentScore;
     }
 
     public finit = (): void => {
@@ -350,7 +390,7 @@ class EntityGraphics implements IComponent {
         let transform = attribute["Transform"];
         let sprite = attribute["Sprite"];
 
-        let ctxt: CanvasRenderingContext2D = (<GraphicsSystem>systems.system["Graphics"]).canvasContext;
+        let ctxt: CanvasRenderingContext2D = (<GraphicsSystem>systems.getSystem("Graphics")).canvasContext;
 
         ctxt.fillStyle = sprite.val['color'];
         ctxt.fillRect(transform.val['position'].x, transform.val['position'].y, transform.val['dimensions'].x, transform.val['dimensions'].y);
@@ -421,9 +461,8 @@ class EntityCollision implements IComponent {
             if (difference.x < dimensions.x && difference.y < dimensions.y) {
                 attribute["Collision"].val['collidingWith'] = entityList[key].attribute["Game"].val['type'];
                 entityList[key].attribute["Collision"].val['collidingWith'] = attribute["Game"].val['type'];
-                console.log(attribute["Collision"].val['collidingWith']);
+                //console.log(attribute["Collision"].val['collidingWith']);
             }
-
         }
     }
 }
@@ -441,7 +480,7 @@ class PlayerInput implements IComponent {
         this.id = "Input";
         this.cooldown = 0;
         this.lastOrientation = new Vector(1, 0);
-        let inputSystem = <InputSystem>systems.system["Input"];
+        let inputSystem = <InputSystem>systems.getSystem("Input");
 
         inputSystem.addKeycodeCallback(65, this.left);
         inputSystem.addKeycodeCallback(87, this.up);
@@ -494,7 +533,7 @@ class PlayerInput implements IComponent {
 
             this.lastOrientation.copy(orientation);
             let position = this.transform.val['position'];
-            (<GameSystem>systems.system["Game"]).spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
+            (<GameSystem>systems.getSystem("Game")).spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
             this.cooldown = 0;
         }
     }
@@ -520,8 +559,14 @@ class EnemyAI {
             enemyPhysics['velocity'].y -= enemyPhysics['acceleration'];
         if (playerTransform['position'].y > attribute["Transform"].val['position'].y)
             enemyPhysics['velocity'].y += enemyPhysics['acceleration'];
-        if (attribute["Collision"].val['collidingWith'] === 'Bullet')
+        if (attribute["Collision"].val['collidingWith'] === 'Bullet') {
+            (<GameSystem>systems.getSystem("Game")).addScore(5);
             attribute["Game"].val['active'] = false;
+        }
+        else if (attribute["Collision"].val['collidingWith'] === 'Player') {
+            (<GameSystem>systems.getSystem("Game")).reduceScore(20);
+            attribute["Game"].val['active'] = false;
+        }
     }
 }
 
