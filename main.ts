@@ -1,6 +1,13 @@
 ﻿const WIDTH = 1024;
 const HEIGHT = 1024;
 
+enum SystemState {
+    None,
+    Init,
+    Update,
+    Finit
+}
+
 class Vector {
     public x: number = 0;
     public y: number = 0;
@@ -81,9 +88,9 @@ class SystemContext {
         this.system = {};
     }
 
-    public addSystem = (system: ISystem): void => {
-        system.init();
+    public addSystem = (system: ISystem): void => {        
         this.system[system.id] = system;
+        console.log("Register System: " + system.id);
     }
 
     public getSystem = (name: string): ISystem => {
@@ -97,6 +104,8 @@ class SystemContext {
 
     public updateSystems = (): void => {
         for (let key in this.system) {
+            if (this.system[key].state == SystemState.None)
+                this.system[key].init();
             this.system[key].update();
         }
     }
@@ -140,6 +149,7 @@ class EntityContext {
 
 interface ISystem {
     id: string;
+    state: SystemState;
     
     init(): void;
     update(): void;
@@ -148,18 +158,35 @@ interface ISystem {
 
 class GraphicsSystem implements ISystem {    
     public id: string = "";
+    public state: SystemState;
     public canvasContext: CanvasRenderingContext2D;
 
     constructor() {
         this.id = "Graphics";
+        this.state = SystemState.None;
     }
 
     public init = (): void => {
+        this.state = SystemState.Init;
         let canvas = document.createElement("canvas");
         canvas.width = WIDTH;
         canvas.height = HEIGHT;        
         document.getElementById("canvasContainer").appendChild(canvas);
         this.canvasContext = canvas.getContext("2d");
+    }
+
+    public update = (): void => {
+        this.state = SystemState.Update;
+        this.clear();
+        this.renderScore();
+        this.renderCooldown();
+        this.renderPower();
+        this.renderSpawnRate();
+        this.renderSpawnAmount();
+    }
+
+    public finit = (): void => {
+        this.state = SystemState.Finit;
     }
 
     private clear = (): void => {
@@ -171,49 +198,97 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillStyle = "#eee";
         this.canvasContext.font = "400px Arial";
         this.canvasContext.textAlign = "center";
-        this.canvasContext.fillText("" + (<GameSystem>systems.getSystem("Game")).getCurrentScore(), WIDTH/2, HEIGHT/2);
+        this.canvasContext.fillText("" + (<GameSystem>systems.getSystem('Game')).getCurrentScore(), WIDTH / 2, HEIGHT / 2);
     }
 
-    public update = (): void => {
-        this.clear();
-        this.renderScore();
+    private renderCooldown = (): void => {
+        this.canvasContext.fillStyle = "#999";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText("y", 50, 50);
+        this.canvasContext.fillText("+", 70, 50);
+        this.canvasContext.fillText("-" + entities.getPlayer().attribute['Weapon'].val['cooldown'], 90, 50);
     }
 
-    public finit = (): void => {
+    private renderPower = (): void => {
+        this.canvasContext.fillStyle = "#999";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText("u", 50, 100);
+        this.canvasContext.fillText("+", 70, 100);
+        this.canvasContext.fillText("*" + entities.getPlayer().attribute['Weapon'].val['power'], 90, 100);
+    }
+
+    private renderSpawnRate = (): void => {
+        this.canvasContext.fillStyle = "#999";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText("i", 50, 150);
+        this.canvasContext.fillText("+", 70, 150);
+        this.canvasContext.fillText("/" + (<GameSystem>systems.getSystem('Game')).spawnTimerMax, 90, 150);
+    }
+
+    private renderSpawnAmount = (): void => {
+        this.canvasContext.fillStyle = "#999";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText("o", 50, 200);
+        this.canvasContext.fillText("+", 70, 200);
+        this.canvasContext.fillText("x" + (<GameSystem>systems.getSystem('Game')).spawnAmount, 90, 200);
     }
 }
 
 class PhysicsSystem implements ISystem {
-    public id: string = "";
+    public id: string;
+    public state: SystemState;
 
-    public timeDelta: number = 1;
+    constructor() {
+        this.id = 'Physics';
+        this.state = SystemState.None;
+    }
 
     init = (): void => {
-        this.id = "Physics";
+        this.state = SystemState.Init;
     }
 
     update = (): void => {
-
+        this.state = SystemState.Update;
     }
 
     finit = (): void => {
-
+        this.state = SystemState.Finit;
     }
 }
 
 class InputSystem implements ISystem {
-    public id: string = "";
+    public id: string;
+    public state: SystemState;
 
     public keyCallback: { [keycode: number]: () => void; } = {};
     public keyDown: { [keycode: number]: boolean; } = {};
 
     constructor() {
-        this.id = "Input";
+        this.id = 'Input';
+        this.state = SystemState.None;
     }
 
     public init = (): void => {
+        this.state = SystemState.Init;
         document.addEventListener('keydown', this.keyboardDown);
         document.addEventListener('keyup', this.keyboardUp);
+    }
+
+    public update = (): void => {
+        this.state = SystemState.Update;
+        for (var key in this.keyDown) {
+            var is_down: boolean = this.keyDown[key];
+            if (is_down) {
+                var callback: () => void = this.keyCallback[key];
+                if (callback != null) {
+                    callback();
+                }
+            }
+        }
+    }
+
+    public finit = (): void => {
+        this.state = SystemState.Finit;
     }
 
     public keyboardDown = (event: KeyboardEvent): void => {
@@ -229,56 +304,53 @@ class InputSystem implements ISystem {
         this.keyCallback[keycode] = f;
         this.keyDown[keycode] = false;
     }
-
-    public update = (): void => {
-        for (var key in this.keyDown) {
-            var is_down: boolean = this.keyDown[key];
-            if (is_down) {
-                var callback: () => void = this.keyCallback[key];
-                if (callback != null) {
-                    callback();
-                }
-            }
-        }
-    }
-
-    public finit = (): void => {
-    }
 }
 
 class GameSystem implements ISystem {
     public id: string;
+    public state: SystemState;
 
-    private score: number;
-    private currentScore: number;
-    private spawnTimer: number;
-    private maxTimer: number;
+    private score: number = 0;
+    private currentScore: number = 0;
+    private spawnTimer: number = 0;
+    public spawnAmount: number = 0;
+    public spawnTimerMax: number = 0;    
     
-    constructor() {
-        this.id = "Game";
-        this.score = 0;
-        this.currentScore = 0;
-        this.spawnTimer = 0;
-        this.maxTimer = 25;
+    constructor() {        
+        this.id = 'Game';
+        this.state = SystemState.None;
     }
 
     public init = (): void => {
-        this.spawnPlayer(new Vector(WIDTH/2, HEIGHT/2), new Vector(0, 0), new Vector(10, 10));
+        this.state = SystemState.Init;
+        this.score = 0;
+        this.currentScore = 0;
+        this.spawnTimer = 0;
+        this.spawnAmount = 1;
+        this.spawnTimerMax = 25;
+        this.spawnPlayer(new Vector(WIDTH / 2, HEIGHT / 2), new Vector(0, 0), new Vector(10, 10));        
     }
 
     public update = (): void => {
+        this.state = SystemState.Update;
         this.updateSpawn();
         this.updateScore();
     }
 
-    private updateSpawn = (): void => {
+    public finit = (): void => {
+        this.state = SystemState.Finit;
+    }
+
+    private updateSpawn = (): void => {        
         this.spawnTimer++;
-        if (this.spawnTimer == this.maxTimer) {
-            let x: number = Math.floor((Math.random() * WIDTH) + 1);
-            let y: number = Math.floor((Math.random() * HEIGHT) + 1);
-            this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
-            this.spawnTimer = 0;
-        }  
+        if (this.spawnTimer == this.spawnTimerMax) {
+            for (let i = 0; i < this.spawnAmount; i++){
+                let x: number = Math.floor((Math.random() * WIDTH) + 1);
+                let y: number = Math.floor((Math.random() * HEIGHT) + 1);
+                this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
+                this.spawnTimer = 0;
+            }
+        }
     }
 
     private updateScore = (): void => {
@@ -289,11 +361,11 @@ class GameSystem implements ISystem {
     }
 
     public addScore = (score: number): void => {
-        this.score += score;
+        this.score += score * this.spawnAmount;
     }
 
     public reduceScore = (score: number): void => {
-        this.score -= score;
+        this.score -= score * this.spawnAmount;
     }
 
     public getScore = (): number => {
@@ -304,8 +376,55 @@ class GameSystem implements ISystem {
         return this.currentScore;
     }
 
-    public finit = (): void => {
+    public upgradePower = (): void => {
+        if (this.score < 100) {
+            console.log("Not enough score");
+            return;
+        }
 
+        let weapon = entities.getPlayer().attribute['Weapon'];
+
+        this.score -= 100;
+        weapon.val['power']++;
+    }
+
+    public upgradeCooldown = (): void => {
+        let weapon = entities.getPlayer().attribute['Weapon'];
+
+        if (weapon.val['cooldown'] == 1) {
+            console.log("Already at minimum cooldown");
+            return;
+        }
+
+        if (this.score < 100) {
+            console.log("Not enough score");
+            return;
+        }
+
+        this.score -= 100;
+        weapon.val['cooldown']--;
+    }
+
+    public upgradeSpawnRate = (): void => {
+        if (this.score < 100) {
+            console.log("Not enough score");
+            return;
+        }
+
+        this.score -= 100;
+        if (this.spawnTimerMax > 0) {
+            this.spawnTimerMax--;
+        }
+    }
+
+    public upgradeSpawnAmount = (): void => {
+        if (this.score < 100) {
+            console.log("Not enough score");
+            return;
+        }
+
+        this.score -= 100;
+        this.spawnAmount++;
     }
 
     spawnPlayer = (position: Vector, velocity: Vector, dimensions: Vector): void => {
@@ -322,7 +441,7 @@ class GameSystem implements ISystem {
             new Attribute("Physics", { 'velocity': velocity, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
             new Attribute("Collision", { 'collidingWith': 'Nothing' }),
             new Attribute("Game", {'index': -1, 'type': 'Player', 'active': true}),
-            new Attribute("Weapon", {'rate': 5, 'power': 20})
+            new Attribute("Weapon", {'cooldown': 10, 'power': 20})
         ];    
         
         let player = new Entity(playerComponents, playerAttributes);
@@ -461,7 +580,6 @@ class EntityCollision implements IComponent {
             if (difference.x < dimensions.x && difference.y < dimensions.y) {
                 attribute["Collision"].val['collidingWith'] = entityList[key].attribute["Game"].val['type'];
                 entityList[key].attribute["Collision"].val['collidingWith'] = attribute["Game"].val['type'];
-                //console.log(attribute["Collision"].val['collidingWith']);
             }
         }
     }
@@ -481,12 +599,17 @@ class PlayerInput implements IComponent {
         this.cooldown = 0;
         this.lastOrientation = new Vector(1, 0);
         let inputSystem = <InputSystem>systems.getSystem("Input");
+        let gameSystem = <GameSystem>systems.getSystem("Game");
 
         inputSystem.addKeycodeCallback(65, this.left);
         inputSystem.addKeycodeCallback(87, this.up);
         inputSystem.addKeycodeCallback(83, this.down);
         inputSystem.addKeycodeCallback(68, this.right);
         inputSystem.addKeycodeCallback(32, this.fire);
+        inputSystem.addKeycodeCallback(89, gameSystem.upgradePower);
+        inputSystem.addKeycodeCallback(85, gameSystem.upgradeCooldown);
+        inputSystem.addKeycodeCallback(73, gameSystem.upgradeSpawnRate);
+        inputSystem.addKeycodeCallback(79, gameSystem.upgradeSpawnAmount);
     }
 
     public update = (attribute: { [name: string]: IAttribute }): void => {
@@ -522,7 +645,7 @@ class PlayerInput implements IComponent {
 
     public fire = (): void => {
         let orientation = new Vector(0, 0);
-        if(this.cooldown >= this.weapon.val['rate']){
+        if (this.cooldown >= this.weapon.val['cooldown']){
             orientation.copy(this.physics.val['velocity']);
 
             if (orientation.magnitude() == 0) {
@@ -559,6 +682,7 @@ class EnemyAI {
             enemyPhysics['velocity'].y -= enemyPhysics['acceleration'];
         if (playerTransform['position'].y > attribute["Transform"].val['position'].y)
             enemyPhysics['velocity'].y += enemyPhysics['acceleration'];
+
         if (attribute["Collision"].val['collidingWith'] === 'Bullet') {
             (<GameSystem>systems.getSystem("Game")).addScore(5);
             attribute["Game"].val['active'] = false;
@@ -582,7 +706,6 @@ class BulletAI {
             attribute["Game"].val['active'] = false;
         if (attribute["Collision"].val['collidingWith'] === 'Enemy')
             attribute["Game"].val['active'] = false;
-
     }
 }
 
@@ -655,11 +778,11 @@ function gameLoop() {
 let systems = new SystemContext();
 let entities = new EntityContext();
 
-window.onload = () => {
-    systems.addSystem(new GraphicsSystem());
+window.onload = () => {        
     systems.addSystem(new PhysicsSystem());
-    systems.addSystem(new InputSystem());
-    systems.addSystem(new GameSystem());    
+    systems.addSystem(new InputSystem());    
+    systems.addSystem(new GameSystem());
+    systems.addSystem(new GraphicsSystem());
 
     gameLoop();
 }
