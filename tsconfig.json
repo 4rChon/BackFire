@@ -1,0 +1,42 @@
+{
+  "compilerOptions": {
+    "module": "amd",
+    "noImplicitAny": true,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5",
+    "outDir": "dist/js/"
+  },
+  "exclude": [
+    "node_modules",
+    "wwwroot",
+    "typings"
+  ],
+  "files": [
+    "src/main.ts",
+    "src/Context/EntityContext.ts",
+    "src/Context/SystemContext.ts",
+    "src/Util/Util.ts",
+    "src/System/System.ts",
+    "src/System/GameSystem.ts",
+    "src/System/GraphicsSystem.ts",
+    "src/System/InputSystem.ts",
+    "src/System/PhysicsSystem.ts",
+    "src/Component/Component.ts",
+    "src/Component/BulletAI.ts",
+    "src/Component/EnemyAI.ts",
+    "src/Component/EntityCollision.ts",
+    "src/Component/EntityGraphics.ts",
+    "src/Component/EntityPhysics.ts",
+    "src/Component/PlayerAI.ts",
+    "src/Component/PlayerInput.ts",
+    "src/Entity/Entity.ts",
+    "src/Attribute/Attribute.ts",
+    "src/Context/package.ts",
+    "src/System/package.ts",
+    "src/Component/package.ts",
+    "src/Entity/package.ts",
+    "src/Attribute/package.ts"
+  ]
+}

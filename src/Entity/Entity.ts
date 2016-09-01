@@ -1,4 +1,4 @@
-﻿import {entities} from "./Globals";
+﻿import {entities} from "../Globals";
 
 import {IAttribute} from "../Attribute/package";
 import {IComponent} from "../Component/package";
