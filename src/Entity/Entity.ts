@@ -13,8 +13,8 @@ interface IEntity {
 }
 
 class Entity implements IEntity {
-    public component: { [name: string]: IComponent };
-    public attribute: { [name: string]: IAttribute };
+    component: { [name: string]: IComponent };
+    attribute: { [name: string]: IAttribute };
 
     constructor(components: IComponent[], attributes: IAttribute[]) {
         this.component = {};
@@ -28,11 +28,11 @@ class Entity implements IEntity {
     }
 
     init = (index: number): void => {
-        this.attribute["Game"].val['index'] = index;
+        this.attribute["Game"].val["index"] = index;
     }
 
     update = (): void => {
-        if (!this.attribute["Game"].val['active']) {
+        if (!this.attribute["Game"].val["active"]) {
             this.finit();
             return;
         }
@@ -43,7 +43,7 @@ class Entity implements IEntity {
     }
 
     finit = (): void => {
-        entities.removeEntity(this.attribute["Game"].val['index']);
+        entities.removeEntity(this.attribute["Game"].val["index"]);
     }
 }
 

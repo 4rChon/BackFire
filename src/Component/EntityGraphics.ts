@@ -6,20 +6,23 @@ import {IAttribute} from "../Attribute/package";
 import {GraphicsSystem} from "../System/package";
 
 class EntityGraphics implements IComponent {
-    public id: string = "";
+    id: string;
+
+    graphicsSystem: GraphicsSystem;
 
     constructor() {
         this.id = "Graphics";
+        this.graphicsSystem = systems.getSystem("Graphics") as GraphicsSystem;
     }
 
     update = (attribute: { [name: string]: IAttribute }): void => {
         let transform = attribute["Transform"];
         let sprite = attribute["Sprite"];
 
-        let ctxt: CanvasRenderingContext2D = (<GraphicsSystem>systems.getSystem("Graphics")).canvasContext;
+        let ctxt = this.graphicsSystem.canvasContext;
 
-        ctxt.fillStyle = sprite.val['color'];
-        ctxt.fillRect(transform.val['position'].x, transform.val['position'].y, transform.val['dimensions'].x, transform.val['dimensions'].y);
+        ctxt.fillStyle = sprite.val["color"];
+        ctxt.fillRect(transform.val["position"].x, transform.val["position"].y, transform.val["dimensions"].x, transform.val["dimensions"].y);
     }
 }
 

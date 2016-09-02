@@ -4,16 +4,16 @@ import {GameSystem} from "./GameSystem";
 import {WIDTH, HEIGHT, systems, entities} from "../Globals";
 
 class GraphicsSystem implements ISystem {
-    public id: string = "";
-    public state: SystemState;
-    public canvasContext: CanvasRenderingContext2D;
+    id: string;
+    state: SystemState;
+    canvasContext: CanvasRenderingContext2D;
 
     constructor() {
         this.id = "Graphics";
         this.state = SystemState.None;
     }
 
-    public init = (): void => {
+    init = (): void => {
         this.state = SystemState.Init;
         let canvas = document.createElement("canvas");
         canvas.width = WIDTH;
@@ -22,7 +22,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext = canvas.getContext("2d");
     }
 
-    public update = (): void => {
+    update = (): void => {
         this.state = SystemState.Update;
         this.clear();
         this.renderScore();
@@ -32,7 +32,7 @@ class GraphicsSystem implements ISystem {
         this.renderSpawnAmount();
     }
 
-    public finit = (): void => {
+    finit = (): void => {
         this.state = SystemState.Finit;
     }
 
@@ -45,7 +45,7 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillStyle = "#eee";
         this.canvasContext.font = "400px Arial";
         this.canvasContext.textAlign = "center";
-        this.canvasContext.fillText("" + (<GameSystem>systems.getSystem('Game')).getCurrentScore(), WIDTH / 2, HEIGHT / 2);
+        this.canvasContext.fillText(`${(systems.getSystem("Game") as GameSystem).getCurrentScore()}`, WIDTH / 2, HEIGHT / 2);
     }
 
     private renderCooldown = (): void => {
@@ -53,8 +53,8 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.font = "15px Arial";
         this.canvasContext.fillText("y", 50, 50);
         this.canvasContext.fillText("+", 70, 50);
-        this.canvasContext.fillText("-" + entities.getPlayer().attribute['Weapon'].val['cooldown'], 90, 50);
-        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).weaponRateCost + ')', 130, 50);
+        this.canvasContext.fillText(`-${entities.getPlayer().attribute["Weapon"].val["cooldown"]}`, 90, 50);
+        this.canvasContext.fillText(`(${(systems.getSystem("Game") as GameSystem).weaponRateCost})`, 130, 50);
     }
 
     private renderPower = (): void => {
@@ -62,8 +62,8 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.font = "15px Arial";
         this.canvasContext.fillText("u", 50, 100);
         this.canvasContext.fillText("+", 70, 100);
-        this.canvasContext.fillText("*" + entities.getPlayer().attribute['Weapon'].val['power'], 90, 100);
-        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).weaponPowerCost + ')', 130, 100);
+        this.canvasContext.fillText(`*${entities.getPlayer().attribute["Weapon"].val["power"]}`, 90, 100);
+        this.canvasContext.fillText(`(${(systems.getSystem("Game") as GameSystem).weaponPowerCost})`, 130, 100);
     }
 
     private renderSpawnRate = (): void => {
@@ -71,8 +71,8 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.font = "15px Arial";
         this.canvasContext.fillText("i", 50, 150);
         this.canvasContext.fillText("+", 70, 150);
-        this.canvasContext.fillText("/" + (<GameSystem>systems.getSystem('Game')).spawnTimerMax, 90, 150);
-        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).spawnTimerCost + ')', 130, 150);
+        this.canvasContext.fillText(`/${(systems.getSystem("Game") as GameSystem).spawnTimerMax}`, 90, 150);
+        this.canvasContext.fillText(`(${(systems.getSystem("Game") as GameSystem).spawnTimerCost})`, 130, 150);
     }
 
     private renderSpawnAmount = (): void => {
@@ -80,8 +80,8 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.font = "15px Arial";
         this.canvasContext.fillText("o", 50, 200);
         this.canvasContext.fillText("+", 70, 200);
-        this.canvasContext.fillText("x" + (<GameSystem>systems.getSystem('Game')).spawnAmount, 90, 200);
-        this.canvasContext.fillText("(" + (<GameSystem>systems.getSystem('Game')).spawnAmountCost + ')', 130, 200);
+        this.canvasContext.fillText(`x${(systems.getSystem("Game") as GameSystem).spawnAmount}`, 90, 200);
+        this.canvasContext.fillText(`(${(systems.getSystem("Game") as GameSystem).spawnAmountCost})`, 130, 200);
     }
 }
 
