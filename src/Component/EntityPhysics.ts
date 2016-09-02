@@ -4,9 +4,13 @@ import {systems} from "../Globals";
 
 import {IAttribute} from "../Attribute/package";
 import {PhysicsSystem} from "../System/package";
+import {Vector} from "../Util/Util";
 
 class EntityPhysics implements IComponent {
     id: string;
+
+    previousTransform: IAttribute;
+    previousPhysics: IAttribute;
 
     physicsSystem: PhysicsSystem;
 
@@ -19,35 +23,40 @@ class EntityPhysics implements IComponent {
         let transform = attribute["Transform"];
         let physics = attribute["Physics"];
 
-        if (physics.val["velocity"].magnitude() > physics.val["terminalVelocity"]) {
-            physics.val["velocity"].setMagnitude(physics.val["terminalVelocity"]);
-        }
-
-        transform.val["position"].add(physics.val["velocity"]);
-
-        let magnitude = physics.val["velocity"].magnitude();
-        if (magnitude > 0) {
-            if (magnitude < physics.val["drag"])
-                physics.val["velocity"].zero();
-            else
-                physics.val["velocity"].setMagnitude(magnitude - physics.val["drag"]);
-        }
-
-        let accumulator = this.physicsSystem.accumulator;
-        //while (accumulator >= this.dt) {
-        //    this.previousPhysicsState = this.currentPhysicsState;
-        //    this.integrate(this.currentPhysicsState, this.t, this.dt);
-        //    this.t += this.dt;
-        //    this.accumulator -= this.dt;
+        //if (physics.val["velocity"].magnitude() > physics.val["terminalVelocity"]) {
+        //    physics.val["velocity"].setMagnitude(physics.val["terminalVelocity"]);
         //}
 
-        //const alpha = this.accumulator / this.dt;
+        transform.val["position"].add(physics.val["velocity"].getMultiply(this.physicsSystem.dt));
+        physics.val["velocity"]
+            .add(physics.val["force"]
+            .getMultiply(physics.val["mass"])
+            .getMultiply(this.physicsSystem.dt));
 
-        //let physicsState = new Vector(0, 0);
-        //physicsState.copy(this.currentPhysicsState);
-        //physicsState.multiply(alpha);
-        //physicsState.add(this.previousPhysicsState);
-        //physicsState.multiply(1 - alpha);
+        //let magnitude = physics.val["velocity"].magnitude();
+        //if (magnitude > 0) {
+        //    if (magnitude < physics.val["drag"])
+        //        physics.val["velocity"].zero();
+        //    else
+        //        physics.val["velocity"].setMagnitude(magnitude - (physics.val["drag"]));
+        //}
+
+        //let accumulator = this.physicsSystem.accumulator;
+        //while (accumulator >= this.physicsSystem.dt) {
+        //    this.previousTransform = attribute["Transform"];
+        //    this.previousPhysics = attribute["Physics"];
+        //    //this.physicsSystem.integrate(this.currentPhysicsState, this.t, this.dt);
+        //    this.physicsSystem.t += this.physicsSystem.dt;
+        //    this.physicsSystem.accumulator -= this.physicsSystem.dt;
+
+        //    //const alpha = this.accumulator / this.dt;
+
+        //    //let physicsState = new Vector(0, 0);
+        //    //physicsState.copy(this.currentPhysicsState);
+        //    //physicsState.multiply(alpha);
+        //    //physicsState.add(this.previousPhysicsState);
+        //    //physicsState.multiply(1 - alpha);
+        //}
     }
 }
 

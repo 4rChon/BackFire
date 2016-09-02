@@ -21,6 +21,17 @@ class EntityContext {
         return this.entity[index];
     }
 
+    getEntitiesWithComponent = (componentId: string): IEntity[] => {
+        let entityList: IEntity[] = [];
+
+        for (let key in this.entity) {
+            if (this.entity[key].component.hasOwnProperty(componentId))
+                entityList.push(this.entity[key]);
+        }
+
+        return entityList;
+    }
+
     getPlayer = (): IEntity => {
         return this.player;
     }

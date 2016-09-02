@@ -1,5 +1,6 @@
 ﻿import {ISystem, SystemState} from "./System";
 
+import {entities} from "../Globals";
 import {Vector} from "../Util/Util";
 
 class PhysicsSystem implements ISystem {
@@ -9,6 +10,7 @@ class PhysicsSystem implements ISystem {
     dt: number;
     currentTime: number;
     accumulator: number;
+    frameCount: number;
 
     previousPhysicsState: Vector;
     currentPhysicsState: Vector;
@@ -23,20 +25,51 @@ class PhysicsSystem implements ISystem {
         this.previousPhysicsState = new Vector(0, 0);
         this.currentPhysicsState = new Vector(0, 0);
         this.t = 0;
-        this.dt = 0.01;
+        this.dt = 1;
         this.currentTime = Date.now();
         this.accumulator = 0;
+        this.frameCount = 0;
     }
 
     update = (): void => {
         this.state = SystemState.Update;
-        let newTime = Date.now();
-        let frameTime = newTime - this.currentTime;
-        if (frameTime > 0.25)
-            frameTime = 0.25;
-        this.currentTime = newTime;
+        this.t += this.dt;
+        //let newTime = Date.now();
+        //let frameTime = newTime - this.currentTime;
 
-        this.accumulator += frameTime;
+        ////if (frameTime  33)
+        ////    frameTime = 33;
+
+        //this.currentTime = newTime;
+        //this.frameCount++;
+        //this.accumulator += frameTime;
+        //console.log(Math.round(1000/frameTime));
+
+        //while (this.accumulator >= this.dt) {
+        //    this.accumulator -= this.dt;
+        //    let entityList = entities.entity;
+
+        //    //for (let key in entityList) {
+        //    //    if (entityList[key].hasComponent("Physics")) {
+        //    //        entityList[key].component["Physics"].update(entityList[key].attribute);
+        //    //    }
+        //    //}
+        //}
+
+        //this.previousTransform = attribute["Transform"];
+        //this.previousPhysics = attribute["Physics"];
+        ////this.physicsSystem.integrate(this.currentPhysicsState, this.t, this.dt);
+        //this.physicsSystem.t += this.physicsSystem.dt;
+        //this.physicsSystem.accumulator -= this.physicsSystem.dt;
+
+        //const alpha = this.accumulator / this.dt;
+
+        //let physicsState = new Vector(0, 0);
+        //physicsState.copy(this.currentPhysicsState);
+        //physicsState.multiply(alpha);
+        //physicsState.add(this.previousPhysicsState);
+        //physicsState.multiply(1 - alpha);
+        //}
     }
 
     finit = (): void => {

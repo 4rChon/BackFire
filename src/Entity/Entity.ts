@@ -10,6 +10,9 @@ interface IEntity {
     init(index: number): void;
     update(): void;
     finit(): void;
+
+    hasComponent(name: string): boolean;
+    hasAttribute(name: string): boolean;
 }
 
 class Entity implements IEntity {
@@ -38,12 +41,21 @@ class Entity implements IEntity {
         }
 
         for (let key in this.component) {
+            //if (key !== "Physics")
             this.component[key].update(this.attribute);
         }
     }
 
     finit = (): void => {
         entities.removeEntity(this.attribute["Game"].val["index"]);
+    }
+
+    hasComponent(name: string) {
+        return this.component.hasOwnProperty(name);
+    }
+
+    hasAttribute(name: string) {
+        return this.attribute.hasOwnProperty(name);
     }
 }
 
