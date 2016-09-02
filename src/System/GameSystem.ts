@@ -41,7 +41,7 @@ class GameSystem implements ISystem {
         this.spawnTimer = 0;
         this.spawnAmount = 1;
         this.spawnTimerMax = 25;
-        this.spawnPlayer(new Vector(WIDTH / 2, HEIGHT / 2), new Vector(0, 0), new Vector(10, 10));
+        this.spawnPlayer(new Vector(WIDTH / 2, HEIGHT / 2), new Vector(0, 0), new Vector(0, 0), new Vector(10, 10));
     }
 
     update = (): void => {
@@ -60,7 +60,7 @@ class GameSystem implements ISystem {
             for (let i = 0; i < this.spawnAmount; i++) {
                 let x = Math.floor((Math.random() * WIDTH) + 1);
                 let y = Math.floor((Math.random() * HEIGHT) + 1);
-                this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
+                this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(0, 0), new Vector(15, 15));
                 this.spawnTimer = 0;
             }
         }
@@ -144,7 +144,7 @@ class GameSystem implements ISystem {
         this.spawnAmount++;
     }
 
-    spawnPlayer = (position: Vector, velocity: Vector, dimensions: Vector): void => {
+    spawnPlayer = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let playerComponents = [
             new PlayerInput(),
             new PlayerAI(),
@@ -157,7 +157,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Player", "active": true }),
             new Attribute("Transform", { "position": position, "dimensions": dimensions }),
             new Attribute("Sprite", { "color": "black" }),
-            new Attribute("Physics", { "velocity": velocity, "acceleration": 3, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 5, "acceleration": 3, "drag": 1, "terminalVelocity": 20 }),
             new Attribute("Collision", { "collidingWith": {} }),            
             new Attribute("Weapon", { "cooldown": 5, "power": 20 })
         ];
@@ -167,7 +167,7 @@ class GameSystem implements ISystem {
         entities.addEntity(player);
     }
 
-    spawnEnemy = (position: Vector, velocity: Vector, dimensions: Vector): void => {
+    spawnEnemy = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let enemyComponents = [
             new EnemyAI(),
             new EntityPhysics(),
@@ -179,7 +179,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Enemy", "active": true }),
             new Attribute("Transform", { "position": position, "dimensions": dimensions }),
             new Attribute("Sprite", { "color": "red" }),
-            new Attribute("Physics", { "velocity": velocity, "acceleration": 2, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 4, "acceleration": 2, "drag": 1, "terminalVelocity": 20 }),
             new Attribute("Collision", { "collidingWith": {} })
         ]
 
@@ -188,7 +188,7 @@ class GameSystem implements ISystem {
         entities.addEntity(enemy);
     }
 
-    spawnBullet = (position: Vector, velocity: Vector, dimensions: Vector): void => {
+    spawnBullet = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let bulletComponents = [
             new BulletAI(),
             new EntityPhysics(),
@@ -200,7 +200,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Bullet", "active": true }),
             new Attribute("Transform", { "position": position, dimensions }),
             new Attribute("Sprite", { "color": "black" }),
-            new Attribute("Physics", { "velocity": velocity, "acceleration": 0, "drag": 1, "terminalVelocity": 100 }),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 1, "terminalVelocity": 100 }),
             new Attribute("Collision", { "collidingWith": {} })
         ]
 

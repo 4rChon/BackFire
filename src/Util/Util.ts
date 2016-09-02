@@ -47,6 +47,14 @@
         this.y = y;
     }
 
+    getRotate = (radians: number): Vector => {
+        let cos = Math.cos(radians);
+        let sin = Math.sin(radians);
+        let x = (cos * this.x) + (sin * this.y);
+        let y = (cos * this.y) - (sin * this.x);
+        return new Vector(x, y);
+    }
+
     getAngle = (): number => {
         return Math.atan2(this.y, this.x);
     }
@@ -56,14 +64,26 @@
         this.y *= value;
     }
 
+    getMultiply = (value: number): Vector => {
+        return new Vector(this.x * value, this.y * value);
+    }
+
     add = (v: Vector): void => {
         this.x += v.x;
         this.y += v.y;
     }
 
+    getAdd = (v: Vector): Vector => {
+        return new Vector(this.x + v.x, this.y + v.y);
+    }
+
     subtract = (v: Vector): void => {
         this.x -= v.x;
         this.y -= v.y;
+    }
+
+    getSubtract = (v: Vector): Vector => {
+        return new Vector(this.x + v.x, this.y + v.y);
     }
 }
 

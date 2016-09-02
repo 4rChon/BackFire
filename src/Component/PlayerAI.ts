@@ -47,7 +47,7 @@ class PlayerAI implements IComponent {
 
         this.lastOrientation.copy(orientation);
         let position = this.transform.val["position"];
-        this.gameSystem.spawnBullet(new Vector(position.x, position.y), orientation, new Vector(5, 5));
+        this.gameSystem.spawnBullet(new Vector(position.x, position.y), new Vector(0, 0), orientation, new Vector(5, 5));
     }
 }
 

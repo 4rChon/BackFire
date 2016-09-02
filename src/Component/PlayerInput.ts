@@ -13,6 +13,8 @@ class PlayerInput implements IComponent {
     private gameSystem: GameSystem;
     private inputSystem: InputSystem;
 
+    keyBinds: {[name: string]: boolean};
+
     constructor() {
         this.id = "Input";
 
@@ -34,28 +36,32 @@ class PlayerInput implements IComponent {
         this.transform = attribute["Transform"];
     }
 
-    left = (): void => {
-        if (this.physics.val["velocity"].x > 0)
-            this.physics.val["velocity"].x = 0;
-        this.physics.val["velocity"].x -= this.physics.val["acceleration"];
+    left = (): void => {        
+        this.physics.val["force"].x += this.physics.val["power"];
+        if (this.physics.val["force"].x > this.physics.val["terminalVelocity"]) {
+            this.physics.val["force"].x = this.physics.val["terminalVelocity"];
+        }
     }
 
     up = (): void => {
-        if (this.physics.val["velocity"].y > 0)
-            this.physics.val["velocity"].y = 0;
-        this.physics.val["velocity"].y -= this.physics.val["acceleration"];
+        this.physics.val["force"].y -= this.physics.val["power"];
+        if (this.physics.val["force"].y < this.physics.val["terminalVelocity"]) {
+            this.physics.val["force"].y = this.physics.val["terminalVelocity"];
+        }
     }
 
     down = (): void => {
-        if (this.physics.val["velocity"].y < 0)
-            this.physics.val["velocity"].y = 0;
-        this.physics.val["velocity"].y += this.physics.val["acceleration"];
+        this.physics.val["force"].y += this.physics.val["power"];
+        if (this.physics.val["force"].y > this.physics.val["terminalVelocity"]) {
+            this.physics.val["force"].y = this.physics.val["terminalVelocity"];
+        }
     }
 
     right = (): void => {
-        if (this.physics.val["velocity"].x < 0)
-            this.physics.val["velocity"].x = 0;
-        this.physics.val["velocity"].x += this.physics.val["acceleration"];
+        this.physics.val["force"].x -= this.physics.val["power"];
+        if (this.physics.val["force"].x < this.physics.val["terminalVelocity"]) {
+            this.physics.val["force"].x = this.physics.val["terminalVelocity"];
+        }
     }
 }
 
