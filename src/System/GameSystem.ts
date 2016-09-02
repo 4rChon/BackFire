@@ -146,11 +146,11 @@ class GameSystem implements ISystem {
 
     spawnPlayer = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let playerComponents = [
-            new EntityGraphics(),
+            new PlayerInput(),
+            new PlayerAI(),
             new EntityPhysics(),
             new EntityCollision(),
-            new PlayerInput(),
-            new PlayerAI()
+            new EntityGraphics()            
         ];
 
         let playerAttributes = [
@@ -169,10 +169,10 @@ class GameSystem implements ISystem {
 
     spawnEnemy = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let enemyComponents = [
-            new EntityGraphics(),
+            new EnemyAI(),
             new EntityPhysics(),
             new EntityCollision(),
-            new EnemyAI()
+            new EntityGraphics()           
         ];
 
         let enemyAttributes = [
@@ -190,10 +190,10 @@ class GameSystem implements ISystem {
 
     spawnBullet = (position: Vector, velocity: Vector, dimensions: Vector): void => {
         let bulletComponents = [
-            new EntityGraphics(),
+            new BulletAI(),
             new EntityPhysics(),
             new EntityCollision(),
-            new BulletAI()
+            new EntityGraphics()                      
         ];
 
         let bulletAttributes = [
