@@ -4,8 +4,8 @@
 }
 
 class Attribute implements IAttribute {
-    public id: string = "";
-    public val: { [name: string]: any } = {};
+    id: string;
+    val: { [name: string]: any } = {};
 
     constructor(id: string, val: { [name: string]: any }) {
         this.id = id;

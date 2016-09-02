@@ -8,27 +8,27 @@ import {EntityGraphics, EntityCollision, EntityPhysics, PlayerAI, PlayerInput, B
 import {Entity} from "../Entity/package";
 
 class GameSystem implements ISystem {
-    public id: string;
-    public state: SystemState;
+    id: string;
+    state: SystemState;
 
-    private score: number = 0;
-    private currentScore: number = 0;
-    private spawnTimer: number = 0;
+    private score = 0;
+    private currentScore = 0;
+    private spawnTimer = 0;
 
-    public spawnAmount: number = 0;
-    public spawnAmountCost: number = 0;
-    public spawnTimerMax: number = 0;
-    public spawnTimerCost: number = 0;
+    spawnAmount = 0;
+    spawnAmountCost = 0;
+    spawnTimerMax = 0;
+    spawnTimerCost = 0;
 
-    public weaponPowerCost: number = 0;
-    public weaponRateCost: number = 0;
+    weaponPowerCost = 0;
+    weaponRateCost = 0;
 
     constructor() {
-        this.id = 'Game';
+        this.id = "Game";
         this.state = SystemState.None;
     }
 
-    public init = (): void => {
+    init = (): void => {
         this.state = SystemState.Init;
         this.score = 0;
         this.currentScore = 0;
@@ -44,13 +44,13 @@ class GameSystem implements ISystem {
         this.spawnPlayer(new Vector(WIDTH / 2, HEIGHT / 2), new Vector(0, 0), new Vector(10, 10));
     }
 
-    public update = (): void => {
+    update = (): void => {
         this.state = SystemState.Update;
         this.updateSpawn();
         this.updateScore();
     }
 
-    public finit = (): void => {
+    finit = (): void => {
         this.state = SystemState.Finit;
     }
 
@@ -58,8 +58,8 @@ class GameSystem implements ISystem {
         this.spawnTimer++;
         if (this.spawnTimer >= this.spawnTimerMax) {
             for (let i = 0; i < this.spawnAmount; i++) {
-                let x: number = Math.floor((Math.random() * WIDTH) + 1);
-                let y: number = Math.floor((Math.random() * HEIGHT) + 1);
+                let x = Math.floor((Math.random() * WIDTH) + 1);
+                let y = Math.floor((Math.random() * HEIGHT) + 1);
                 this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(15, 15));
                 this.spawnTimer = 0;
             }
@@ -73,39 +73,39 @@ class GameSystem implements ISystem {
             this.currentScore--;
     }
 
-    public addScore = (score: number): void => {
+    addScore = (score: number): void => {
         this.score += score * this.spawnAmount;
     }
 
-    public reduceScore = (score: number): void => {
+    reduceScore = (score: number): void => {
         this.score -= score * this.spawnAmount;
     }
 
-    public getScore = (): number => {
+    getScore = (): number => {
         return this.score;
     }
 
-    public getCurrentScore = (): number => {
+    getCurrentScore = (): number => {
         return this.currentScore;
     }
 
-    public upgradePower = (): void => {
+    upgradePower = (): void => {
         if (this.score < this.weaponPowerCost) {
             console.log("Not enough score");
             return;
         }
 
-        let weapon = entities.getPlayer().attribute['Weapon'];
+        let weapon = entities.getPlayer().attribute["Weapon"];
 
         this.score -= this.weaponPowerCost;
         this.weaponPowerCost += 25;
-        weapon.val['power']++;
+        weapon.val["power"]++;
     }
 
-    public upgradeCooldown = (): void => {
-        let weapon = entities.getPlayer().attribute['Weapon'];
+    upgradeCooldown = (): void => {
+        let weapon = entities.getPlayer().attribute["Weapon"];
 
-        if (weapon.val['cooldown'] == 1) {
+        if (weapon.val["cooldown"] === 1) {
             console.log("Already at minimum cooldown");
             return;
         }
@@ -117,10 +117,10 @@ class GameSystem implements ISystem {
 
         this.score -= this.weaponRateCost;
         this.weaponRateCost += 50;
-        weapon.val['cooldown']--;
+        weapon.val["cooldown"]--;
     }
 
-    public upgradeSpawnRate = (): void => {
+    upgradeSpawnRate = (): void => {
         if (this.score < this.spawnTimerCost) {
             console.log("Not enough score");
             return;
@@ -133,7 +133,7 @@ class GameSystem implements ISystem {
         }
     }
 
-    public upgradeSpawnAmount = (): void => {
+    upgradeSpawnAmount = (): void => {
         if (this.score < this.spawnAmountCost) {
             console.log("Not enough score");
             return;
@@ -154,12 +154,12 @@ class GameSystem implements ISystem {
         ];
 
         let playerAttributes = [
-            new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
-            new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 3, 'drag': 1, 'terminalVelocity': 15 }),
-            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
-            new Attribute("Game", { 'index': -1, 'type': 'Player', 'active': true }),
-            new Attribute("Weapon", { 'cooldown': 10, 'power': 20 })
+            new Attribute("Game", { "index": -1, "type": "Player", "active": true }),
+            new Attribute("Transform", { "position": position, "dimensions": dimensions }),
+            new Attribute("Sprite", { "color": "black" }),
+            new Attribute("Physics", { "velocity": velocity, "acceleration": 3, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Collision", { "collidingWith": {} }),            
+            new Attribute("Weapon", { "cooldown": 5, "power": 20 })
         ];
 
         let player = new Entity(playerComponents, playerAttributes);
@@ -176,11 +176,11 @@ class GameSystem implements ISystem {
         ];
 
         let enemyAttributes = [
-            new Attribute("Transform", { 'position': position, 'dimensions': dimensions }),
-            new Attribute("Sprite", { 'color': "red" }),
-            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 2, 'drag': 1, 'terminalVelocity': 20 }),
-            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
-            new Attribute("Game", { 'index': -1, 'type': 'Enemy', 'active': true })
+            new Attribute("Game", { "index": -1, "type": "Enemy", "active": true }),
+            new Attribute("Transform", { "position": position, "dimensions": dimensions }),
+            new Attribute("Sprite", { "color": "red" }),
+            new Attribute("Physics", { "velocity": velocity, "acceleration": 2, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Collision", { "collidingWith": {} })
         ]
 
         let enemy = new Entity(enemyComponents, enemyAttributes);
@@ -197,11 +197,11 @@ class GameSystem implements ISystem {
         ];
 
         let bulletAttributes = [
-            new Attribute("Transform", { 'position': position, dimensions }),
-            new Attribute("Sprite", { 'color': "black" }),
-            new Attribute("Physics", { 'velocity': velocity, 'acceleration': 0, 'drag': 1, 'terminalVelocity': 100 }),
-            new Attribute("Collision", { 'collidingWith': 'Nothing' }),
-            new Attribute("Game", { 'index': -1, 'type': 'Bullet', 'active': true })
+            new Attribute("Game", { "index": -1, "type": "Bullet", "active": true }),
+            new Attribute("Transform", { "position": position, dimensions }),
+            new Attribute("Sprite", { "color": "black" }),
+            new Attribute("Physics", { "velocity": velocity, "acceleration": 0, "drag": 1, "terminalVelocity": 100 }),
+            new Attribute("Collision", { "collidingWith": {} })
         ]
 
         let bullet = new Entity(bulletComponents, bulletAttributes);
