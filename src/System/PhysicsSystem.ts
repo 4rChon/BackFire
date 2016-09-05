@@ -10,10 +10,9 @@ class PhysicsSystem implements ISystem {
     state: SystemState;
     t: number;
     dt: number;
-    remainingTime: number;
     currentTime: number;
     updateCount: number;
-    frameCount: number;
+    fps: number;
 
     constructor() {
         this.id = "Physics";
@@ -25,18 +24,15 @@ class PhysicsSystem implements ISystem {
         this.t = 0;
         this.dt = 16;
         this.currentTime = Date.now();
-        this.remainingTime = 0;
-        this.frameCount = 0;
     }
 
     update = (): void => {
         this.state = SystemState.Update;
         let newTime = Date.now();
         let frameTime = newTime - this.currentTime;
-        if (frameTime > 17) {
-            frameTime = 17;
-        }
-        this.currentTime = newTime;
+        this.currentTime = newTime;        
+        this.t += frameTime;
+        this.fps = 1000 / frameTime;
 
         this.updateCount = frameTime / this.dt;
     }
@@ -47,11 +43,14 @@ class PhysicsSystem implements ISystem {
 
     calculateDrag = (transform: IAttribute, physics: IAttribute): Vector => {
         let dragCoeff = physics.val["drag"];
-        let fluidDensity = 0.001;
+        let fluidDensity = 0.002;
+
         //F_d = 1/2 * p * v^2 * C_d * A
         let drag = (1 / 2) * fluidDensity * dragCoeff * transform.val["dimensions"].x;
         let dragX = drag * Math.pow(physics.val["velocity"].x, 2) * sign(physics.val["velocity"].x);
         let dragY = drag * Math.pow(physics.val["velocity"].y, 2) * sign(physics.val["velocity"].y);
+        dragX = Math.abs(dragX) > 0 && Math.abs(dragX) < 0.2 ? 0.2 * sign(dragX) : dragX;
+        dragY = Math.abs(dragY) > 0 && Math.abs(dragY) < 0.2 ? 0.2 * sign(dragY) : dragY;
         return new Vector(dragX, dragY);
     }
 }

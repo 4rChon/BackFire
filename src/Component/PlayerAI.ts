@@ -4,12 +4,13 @@ import {systems} from "../Globals";
 import {Vector, multiply} from "../Util/Util";
 
 import {IAttribute} from "../Attribute/package";
-import {GameSystem} from "../System/package";
+import {GameSystem, PhysicsSystem} from "../System/package";
 
 class PlayerAI implements IComponent {
     id: string;
 
     gameSystem: GameSystem;
+    physicsSystem: PhysicsSystem;
 
     private cooldown: number;
     private lastOrientation: Vector;
@@ -20,6 +21,7 @@ class PlayerAI implements IComponent {
     constructor() {
         this.id = "AI";
         this.gameSystem = systems.getSystem("Game") as GameSystem;
+        this.physicsSystem = systems.getSystem("Physics") as PhysicsSystem;
         this.cooldown = 0;
         this.lastOrientation = new Vector(1, 0);        
     }
@@ -28,7 +30,7 @@ class PlayerAI implements IComponent {
         this.physics = attribute["Physics"];
         this.transform = attribute["Transform"];
         this.weapon = attribute["Weapon"];
-        this.cooldown++;
+        this.cooldown += this.physicsSystem.updateCount;
         if (this.cooldown >= this.weapon.val["cooldown"]) {
             this.fire();
             this.cooldown = 0;
