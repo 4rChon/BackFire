@@ -9,6 +9,7 @@ class PhysicsSystem implements ISystem {
     id: string;
     state: SystemState;
     t: number;
+    frameCount: number;
     dt: number;
     currentTime: number;
     updateCount: number;
@@ -22,11 +23,13 @@ class PhysicsSystem implements ISystem {
     init = (): void => {
         this.state = SystemState.Init;
         this.t = 0;
+        this.frameCount = 0;
         this.dt = 16;
         this.currentTime = Date.now();
     }
 
     update = (): void => {
+        this.frameCount ++;
         this.state = SystemState.Update;
         let newTime = Date.now();
         let frameTime = newTime - this.currentTime;
