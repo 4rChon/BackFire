@@ -10,7 +10,7 @@ class BulletAI implements IComponent {
     }
 
     update = (attribute: { [name: string]: IAttribute }): void => {
-        if (attribute["Physics"].val["velocity"].magnitude() === 0)
+        if (attribute["Physics"].val["velocity"].magnitude() <= 1)
             attribute["Game"].val["active"] = false;
         let collisionList = attribute["Collision"].val["collidingWith"];
         for (let key in collisionList) {

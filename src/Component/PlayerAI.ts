@@ -1,7 +1,7 @@
 ﻿import {IComponent} from "./Component";
 
 import {systems} from "../Globals";
-import {Vector} from "../Util/Util";
+import {Vector, multiply} from "../Util/Util";
 
 import {IAttribute} from "../Attribute/package";
 import {GameSystem} from "../System/package";

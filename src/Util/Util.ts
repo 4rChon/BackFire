@@ -12,9 +12,14 @@
     }
 
     setMagnitude = (magnitude: number): void => {
-        let angle = this.getAngle();
-        this.x = magnitude * Math.cos(angle);
-        this.y = magnitude * Math.sin(angle);
+        if (magnitude == 0)
+            this.zero();
+        else {
+            let ratio = magnitude / this.magnitude();
+            console.log("Ratio: ", magnitude, "/", this.magnitude(), " = ", ratio);
+        }
+        //this.x *= ratio;//magnitude * Math.cos(angle) * sign(this.x);
+        //this.y *= ratio;//magnitude * Math.sin(angle) * sign(this.y);
     }
 
     magSq = (): number => {
@@ -38,6 +43,10 @@
         this.y = v.y;
     }
 
+    getCopy = (): Vector => {
+        return new Vector(this.x, this.y);
+    }
+
     rotate = (radians: number): void => {
         let cos = Math.cos(radians);
         let sin = Math.sin(radians);
@@ -56,7 +65,14 @@
     }
 
     getAngle = (): number => {
-        return Math.atan2(this.y, this.x);
+        let angle = Math.atan2(this.y, this.x);
+        return angle;
+        //if (this.x > 0 && this.y > 0)
+        //    return angle;
+        //if (this.x < 0 && this.y > 0)
+        //    return (Math.PI * 4) + angle;
+        //else
+        //    return Math.PI * 2 + angle;
     }
 
     multiply = (value: number): void => {
@@ -64,31 +80,31 @@
         this.y *= value;
     }
 
-    getMultiply = (value: number): Vector => {
-        return new Vector(this.x * value, this.y * value);
-    }
-
     add = (v: Vector): void => {
         this.x += v.x;
         this.y += v.y;
-    }
-
-    getAdd = (v: Vector): Vector => {
-        return new Vector(this.x + v.x, this.y + v.y);
     }
 
     subtract = (v: Vector): void => {
         this.x -= v.x;
         this.y -= v.y;
     }
-
-    getSubtract = (v: Vector): Vector => {
-        return new Vector(this.x + v.x, this.y + v.y);
-    }
 }
 
-function sign(x: number) {
+let sign = (x: number): number => {
     return typeof x === "number" ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 }
 
-export {Vector, sign};
+let add = (v1: Vector, v2: Vector): Vector => {
+    return new Vector(v1.x + v2.x, v1.y + v2.y);
+}
+
+let multiply = (v: Vector, value: number): Vector => {
+    return new Vector(v.x * value, v.y * value);
+}
+
+let subtract = (v1: Vector, v2: Vector): Vector => {
+    return new Vector(v1.x - v2.x, v1.y - v2.y);
+}
+
+export {Vector, sign, add, multiply, subtract};

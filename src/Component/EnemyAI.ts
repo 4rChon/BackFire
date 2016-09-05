@@ -21,13 +21,13 @@ class EnemyAI implements IComponent {
         let enemyPhysics = attribute["Physics"].val;
 
         if (playerTransform["position"].x < attribute["Transform"].val["position"].x)
-            enemyPhysics["velocity"].x -= enemyPhysics["acceleration"];
+            enemyPhysics["force"].x = -enemyPhysics["power"];
         if (playerTransform["position"].x > attribute["Transform"].val["position"].x)
-            enemyPhysics["velocity"].x += enemyPhysics["acceleration"];
+            enemyPhysics["force"].x = enemyPhysics["power"];
         if (playerTransform["position"].y < attribute["Transform"].val["position"].y)
-            enemyPhysics["velocity"].y -= enemyPhysics["acceleration"];
+            enemyPhysics["force"].y = -enemyPhysics["power"];
         if (playerTransform["position"].y > attribute["Transform"].val["position"].y)
-            enemyPhysics["velocity"].y += enemyPhysics["acceleration"];
+            enemyPhysics["force"].y = enemyPhysics["power"];
 
         
         let collisionList = attribute["Collision"].val["collidingWith"];

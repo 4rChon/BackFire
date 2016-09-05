@@ -37,31 +37,27 @@ class PlayerInput implements IComponent {
     }
 
     left = (): void => {        
-        this.physics.val["force"].x += this.physics.val["power"];
-        if (this.physics.val["force"].x > this.physics.val["terminalVelocity"]) {
-            this.physics.val["force"].x = this.physics.val["terminalVelocity"];
-        }
+        this.physics.val["force"].x = -this.physics.val["power"];
+        if (this.physics.val["velocity"].x > 0)
+            this.physics.val["velocity"].x = 0;
     }
 
     up = (): void => {
-        this.physics.val["force"].y -= this.physics.val["power"];
-        if (this.physics.val["force"].y < this.physics.val["terminalVelocity"]) {
-            this.physics.val["force"].y = this.physics.val["terminalVelocity"];
-        }
+        this.physics.val["force"].y = -this.physics.val["power"];
+        if (this.physics.val["velocity"].y > 0)
+            this.physics.val["velocity"].y = 0;
     }
 
     down = (): void => {
-        this.physics.val["force"].y += this.physics.val["power"];
-        if (this.physics.val["force"].y > this.physics.val["terminalVelocity"]) {
-            this.physics.val["force"].y = this.physics.val["terminalVelocity"];
-        }
+        this.physics.val["force"].y = this.physics.val["power"];
+        if (this.physics.val["velocity"].y < 0)
+            this.physics.val["velocity"].y = 0;
     }
 
     right = (): void => {
-        this.physics.val["force"].x -= this.physics.val["power"];
-        if (this.physics.val["force"].x < this.physics.val["terminalVelocity"]) {
-            this.physics.val["force"].x = this.physics.val["terminalVelocity"];
-        }
+        this.physics.val["force"].x = this.physics.val["power"];
+        if (this.physics.val["velocity"].x < 0)
+            this.physics.val["velocity"].x = 0;
     }
 }
 
