@@ -146,9 +146,9 @@ class GameSystem implements ISystem {
 
     spawnPlayer = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let playerComponents = [
+            new EntityPhysics(),
             new PlayerInput(),
             new PlayerAI(),
-            new EntityPhysics(),
             new EntityCollision(),
             new EntityGraphics()            
         ];
@@ -157,7 +157,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Player", "active": true }),
             new Attribute("Transform", { "position": position, "dimensions": dimensions }),
             new Attribute("Sprite", { "color": "black" }),
-            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 5, "acceleration": 3, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 8, "acceleration": 0, "drag": 1}),
             new Attribute("Collision", { "collidingWith": {} }),            
             new Attribute("Weapon", { "cooldown": 5, "power": 20 })
         ];
@@ -169,8 +169,8 @@ class GameSystem implements ISystem {
 
     spawnEnemy = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let enemyComponents = [
-            new EnemyAI(),
             new EntityPhysics(),
+            new EnemyAI(),            
             new EntityCollision(),
             new EntityGraphics()           
         ];
@@ -179,7 +179,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Enemy", "active": true }),
             new Attribute("Transform", { "position": position, "dimensions": dimensions }),
             new Attribute("Sprite", { "color": "red" }),
-            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 4, "acceleration": 2, "drag": 1, "terminalVelocity": 20 }),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 4, "acceleration": 0, "drag": 1}),
             new Attribute("Collision", { "collidingWith": {} })
         ]
 
@@ -190,8 +190,8 @@ class GameSystem implements ISystem {
 
     spawnBullet = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let bulletComponents = [
-            new BulletAI(),
             new EntityPhysics(),
+            new BulletAI(),            
             new EntityCollision(),
             new EntityGraphics()                      
         ];
@@ -200,7 +200,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Bullet", "active": true }),
             new Attribute("Transform", { "position": position, dimensions }),
             new Attribute("Sprite", { "color": "black" }),
-            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 1, "terminalVelocity": 100 }),
+            new Attribute("Physics", { "mass": 2, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 5 }),
             new Attribute("Collision", { "collidingWith": {} })
         ]
 
