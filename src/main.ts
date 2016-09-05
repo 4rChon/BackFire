@@ -8,11 +8,13 @@ function gameLoop() {
     entities.updateEntities();
 }
 
-window.onload = () => {        
+function main() {
     systems.addSystem(new PhysicsSystem());
-    systems.addSystem(new InputSystem());    
+    systems.addSystem(new InputSystem());
     systems.addSystem(new GameSystem());
     systems.addSystem(new GraphicsSystem());
 
     gameLoop();
 }
+
+main();
