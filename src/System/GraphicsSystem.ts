@@ -1,5 +1,4 @@
-﻿import {SystemState, ISystem} from "./System";
-import {GameSystem} from "./GameSystem";
+﻿import {SystemState, ISystem, GameSystem, PhysicsSystem} from "./package";
 
 import {WIDTH, HEIGHT, systems, entities} from "../Globals";
 
@@ -30,6 +29,8 @@ class GraphicsSystem implements ISystem {
         this.renderPower();
         this.renderSpawnRate();
         this.renderSpawnAmount();
+        this.renderFPS();
+        this.renderUPS();
     }
 
     finit = (): void => {
@@ -82,6 +83,18 @@ class GraphicsSystem implements ISystem {
         this.canvasContext.fillText("+", 70, 200);
         this.canvasContext.fillText(`x${(systems.getSystem("Game") as GameSystem).spawnAmount}`, 90, 200);
         this.canvasContext.fillText(`(${(systems.getSystem("Game") as GameSystem).spawnAmountCost})`, 130, 200);
+    }
+
+    private renderFPS = (): void => {
+        this.canvasContext.fillStyle = "#0F0";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText(`FPS ${Math.round((systems.getSystem("Physics") as PhysicsSystem).fps * 100)/100}`, WIDTH/2, 50);
+    }
+
+    private renderUPS = (): void => {
+        this.canvasContext.fillStyle = "#0F0";
+        this.canvasContext.font = "15px Arial";
+        this.canvasContext.fillText(`UPS ${Math.round((systems.getSystem("Physics") as PhysicsSystem).updateCount * 100)/100}`, WIDTH/ 2, 100);
     }
 }
 
