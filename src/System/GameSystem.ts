@@ -1,6 +1,6 @@
-﻿import {ISystem, SystemState} from "./System";
+﻿import {ISystem, SystemState, PhysicsSystem} from "./package";
 
-import {WIDTH, HEIGHT, entities} from "../Globals";
+import {WIDTH, HEIGHT, entities, systems} from "../Globals";
 import {Vector} from "../Util/Util";
 
 import {Attribute} from "../Attribute/package";
@@ -10,6 +10,8 @@ import {Entity} from "../Entity/package";
 class GameSystem implements ISystem {
     id: string;
     state: SystemState;
+
+    private physicsSystem: PhysicsSystem;
 
     private score = 0;
     private currentScore = 0;
@@ -42,6 +44,8 @@ class GameSystem implements ISystem {
         this.spawnAmount = 1;
         this.spawnTimerMax = 25;
         this.spawnPlayer(new Vector(WIDTH / 2, HEIGHT / 2), new Vector(0, 0), new Vector(0, 0), new Vector(10, 10));
+
+        this.physicsSystem = systems.getSystem("Physics") as PhysicsSystem;
     }
 
     update = (): void => {
@@ -55,12 +59,13 @@ class GameSystem implements ISystem {
     }
 
     private updateSpawn = (): void => {
-        this.spawnTimer++;
+        this.spawnTimer += this.physicsSystem.updateCount;
         if (this.spawnTimer >= this.spawnTimerMax) {
             for (let i = 0; i < this.spawnAmount; i++) {
                 let x = Math.floor((Math.random() * WIDTH) + 1);
                 let y = Math.floor((Math.random() * HEIGHT) + 1);
                 this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(0, 0), new Vector(15, 15));
+                //this.spawnPickup(new Vector(WIDTH-x, HEIGHT-y), new Vector(0, 0), new Vector(0, 0), new Vector(25, 25));
                 this.spawnTimer = 0;
             }
         }
@@ -186,6 +191,24 @@ class GameSystem implements ISystem {
         let enemy = new Entity(enemyComponents, enemyAttributes);
 
         entities.addEntity(enemy);
+    }
+
+    spawnPickup = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
+        let pickupComponents = [
+            new EntityPhysics(),
+            new EntityGraphics()
+        ];
+
+        let pickUpAttributes = [
+            new Attribute("Game", { "index": -1, "type": "Pickup", "active": true }),
+            new Attribute("Transform", { "position": position, "dimensions": dimensions }),
+            new Attribute("Sprite", { "color": "#77f" }),
+            new Attribute("Physics", { "mass": 20, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 1 })
+        ];
+
+        let pickup = new Entity(pickupComponents, pickUpAttributes);
+
+        entities.addEntity(pickup);
     }
 
     spawnBullet = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
