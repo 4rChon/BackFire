@@ -9,7 +9,7 @@ From System: *GraphicsSystem*, *GameSystem*, *InputSystem*, *PhysicsSystem*
 gameLoop()
 main()
 ```
-
+---
 ## 2. Attribute
 ### Attribute.ts
 #### Exports
@@ -26,6 +26,7 @@ val: { [name: string]: any }
 constructor(id: string, val: {[name: string]: any})
 ```
 
+---
 ## 3. Component
 ### Component.ts
 #### Imports
@@ -40,7 +41,7 @@ id: string
 
 update(attribute: { [name: string]: IAttribute }): void
 ```
-
+---
 ## 4. Entity
 ### Entity.ts
 #### Imports
@@ -67,7 +68,7 @@ hasAttribute(name: string): boolean
 ```typescript
 constructor(components: IComponent[], attributes: IAttribute[])
 ```
-
+---
 ## 5. System
 ### System.ts
 
@@ -90,7 +91,7 @@ init(): void;
 update(): void;
 finit(): void;
 ```
-
+---
 ## 6. Context
 ### EntityContext.ts
 
@@ -115,6 +116,7 @@ getPlayer(): IEntity
 removeEntity(index: number): void
 updateEntities(): void
 ```
+---
 ### SystemContext.ts
 
 #### Imports
@@ -134,7 +136,7 @@ getSystem(name: string): ISystem
 removeSystem(name: string): void
 updateSystems(): void
 ```
-
+---
 ## 7. Util
 ### util.ts
 #### Exports
@@ -167,6 +169,7 @@ add(v1: Vector, v2: Vector): Vector
 multiply(v: Vector, value: number): Vector
 subtract(v1: Vector, v2: Vector): Vector
 ```
+---
 ## 8. Globals.ts
 #### Imports
 From Context: *SystemContext*, *EntityContext*
@@ -180,3 +183,4 @@ const HEIGHT = 1024;
 let systems = new SystemContext();
 let entities = new EntityContext();
 ```
+---
