@@ -15,13 +15,13 @@ main()
 #### Exports
 *IAttribute*, *Attribute*
 
-#### __interface__ IAttribute
+#### *interface* IAttribute
 ```typescript
 id: string
 val: { [name: string]: any }
 ```
 
-#### __class__ Attribute implements IAttribute
+#### *class* Attribute implements IAttribute
 ```typescript
 constructor(id: string, val: {[name: string]: any})
 ```
@@ -34,7 +34,7 @@ From Attribute: IAttribute
 #### Exports
 IComponent
 
-#### __interface__ IComponent
+#### *interface* IComponent
 ```typescript
 id: string
 
@@ -51,7 +51,7 @@ From Component: *IComponent*
 #### Exports
 *IEntity*, *Entity*
 
-#### __interface__ IEntity
+#### *interface* IEntity
 ```typescript
 component: { [name: string]: IComponent }
 attribute: { [name: string]: IAttribute }
@@ -63,7 +63,7 @@ finit(): void
 hasComponent(name: string): boolean
 hasAttribute(name: string): boolean
 ```
-#### __class__ Entity implements IEntity
+#### *class* Entity implements IEntity
 ```typescript
 constructor(components: IComponent[], attributes: IAttribute[])
 ```
@@ -74,14 +74,14 @@ constructor(components: IComponent[], attributes: IAttribute[])
 #### Exports
 *SystemState*, *ISystem*
 
-#### __enum__ SystemState
+#### *enum* SystemState
 ```typescript
 None,
 Init,
 Update,
 Finit
 ```
-#### __interface__ ISystem
+#### *interface* ISystem
 ```typescript
 id: string;
 state: SystemState;
@@ -100,7 +100,7 @@ From Entity: *IEntity*
 #### Exports
 *EntityContext*
 
-#### __class__ EntityContext
+#### *class* EntityContext
 ```typescript
 entity: {[index: number]: IEntity}  
 private index: number  
@@ -123,7 +123,7 @@ From System: *ISystem*, *SystemState*
 #### Exports
 *SystemContext*
 
-#### __class__ SystemContext
+#### *class* SystemContext
 ```typescript
 private system: {[name: string]: ISystem}
 
@@ -139,7 +139,7 @@ updateSystems(): void
 ### util.ts
 #### Exports
 *Vector*, *sign*, *add*, *multiply*, *subtract*
-#### __class__ Vector
+#### *class* Vector
 ```typescript
 x: number
 y: number
