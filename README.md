@@ -1,5 +1,5 @@
 # BackFire
-## main.ts
+## 1. main.ts
 #### Imports
 From Globals: *entities*, *systems*
 From System: *GraphicsSystem*, *GameSystem*, *InputSystem*, *PhysicsSystem*
