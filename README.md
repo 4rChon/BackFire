@@ -41,7 +41,57 @@ id: string
 update(attribute: { [name: string]: IAttribute }): void
 ```
 
-## 4. Context
+## 4. Entity
+### Entity.ts
+#### Imports
+From Globals: *entities*  
+From Attribute: *IAttribute*  
+From Component: *IComponent*
+
+#### Exports
+*IEntity*, *Entity*
+
+#### __interface__ IEntity
+```typescript
+component: { [name: string]: IComponent }
+attribute: { [name: string]: IAttribute }
+
+init(index: number): void
+update(): void
+finit(): void
+
+hasComponent(name: string): boolean
+hasAttribute(name: string): boolean
+```
+#### __class__ Entity implements IEntity
+```typescript
+constructor(components: IComponent[], attributes: IAttribute[])
+```
+
+## 5. System
+### System.ts
+
+#### Exports
+*SystemState*, *ISystem*
+
+#### __enum__ SystemState
+```typescript
+None,
+Init,
+Update,
+Finit
+```
+#### __interface__ ISystem
+```typescript
+id: string;
+state: SystemState;
+
+init(): void;
+update(): void;
+finit(): void;
+```
+
+## 6. Context
 ### EntityContext.ts
 
 #### Imports
@@ -85,55 +135,6 @@ removeSystem(name: string): void
 updateSystems(): void
 ```
 
-## 5. Entity
-### Entity.ts
-#### Imports
-From Globals: *entities*  
-From Attribute: *IAttribute*  
-From Component: *IComponent*
-
-#### Exports
-*IEntity*, *Entity*
-
-#### __interface__ IEntity
-```typescript
-component: { [name: string]: IComponent }
-attribute: { [name: string]: IAttribute }
-
-init(index: number): void
-update(): void
-finit(): void
-
-hasComponent(name: string): boolean
-hasAttribute(name: string): boolean
-```
-#### __class__ Entity implements IEntity
-```typescript
-constructor(components: IComponent[], attributes: IAttribute[])
-```
-
-## 6. System
-### System.ts
-
-#### Exports
-*SystemState*, *ISystem*
-
-#### __enum__ SystemState
-```typescript
-None,
-Init,
-Update,
-Finit
-```
-#### __interface__ ISystem
-```typescript
-id: string;
-state: SystemState;
-
-init(): void;
-update(): void;
-finit(): void;
-```
 ## 7. Util
 ### util.ts
 #### Exports
