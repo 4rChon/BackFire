@@ -1,5 +1,41 @@
 # BackFire
 
+<h2>Table of Contents</h2>
+<ol>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#1-maints>main.ts</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#2-attribute>Attribute</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#3-component>Component</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#4-entity>Entity</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#5-system>System</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#6-context>Context</a>
+    <ul>
+      <li>
+        <a href=https://github.com/4rChon/BackFire#entitycontextts>EntityContext.ts</a>
+      </li>
+      <li>
+        <a href=https://github.com/4rChon/BackFire#systemcontextts>SystemContext.ts</a>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#7-util>Util</a>
+  </li>
+  <li>
+    <a href=https://github.com/4rChon/BackFire#8-globalsts>Globals.ts</a>
+  </li>
+</ol>
+
 ## 1. main.ts
 
 #### Imports
