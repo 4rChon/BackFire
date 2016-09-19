@@ -4,105 +4,35 @@
 <ol>
   <li>
     <a href=https://github.com/4rChon/BackFire#1-maints>main.ts</a>
-    <ul>
-      <li><a href=https://github.com/4rChon/BackFire#imports>Imports</a></li>
-      <li><a href=https://github.com/4rChon/BackFire#functions>Functions</a></li>
-    </ul>
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#2-attribute>Attribute</a>
-    <ul>
-      <li>
-        <a href=https://github.com/4rChon/BackFire#attributets>Attribute.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#exports>Exports.ts</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#interface-iattribute>IAttribute</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#class-attribute-implements-iattribute>Attribute</a></li>
-        </ul>
-      </li>
-    </ul
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#3-component>Component</a>
-    <ul>
-      <li>
-        <a href=https://github.com/4rChon/BackFire#componentts>Component.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#imports-1>Imports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#exports-1>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#interface-icomponent>IComponent</a></li>
-        </ul>
-      </li>
-    </ul
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#4-entity>Entity</a>
-    <ul>
-      <li>
-        <a href=https://github.com/4rChon/BackFire#entityts>Entity.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#imports-2>Imports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#exports-2>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#interface-ientity>IEntity</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#class-entity-implements-ientity>Entity</a></li>
-        </ul>
-      </li>
-    </ul
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#5-system>System</a>
-    <ul>
-      <li>
-        <a href=https://github.com/4rChon/BackFire#systemts>System.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#exports-3>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#enum-systemstate>SystemState</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#interface-isystem>ISystem</a></li>
-        </ul>
-      </li>
-    </ul
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#6-context>Context</a>
     <ul>
       <li>
         <a href=https://github.com/4rChon/BackFire#entitycontextts>EntityContext.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#imports-3>Imports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#exports-4>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#class-entitycontext>EntityContext</a></li>
-        </ul>
       </li>
       <li>
         <a href=https://github.com/4rChon/BackFire#systemcontextts>SystemContext.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#imports-4>Imports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#exports-5>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#class-systemcontext>SystemContext</a></li>
-        </ul>
       </li>
-    </ul
+    </ul>
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#7-util>Util</a>
-    <ul>
-      <li>
-        <a href=https://github.com/4rChon/BackFire#utilts>util.ts</a>
-        <ul>
-          <li><a href=https://github.com/4rChon/BackFire#exports-6>Exports</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#class-vector>Vector</a></li>
-          <li><a href=https://github.com/4rChon/BackFire#helper-functions>Helper Functions</a></li>
-        </ul>
-      </li>
-    </ul
   </li>
   <li>
     <a href=https://github.com/4rChon/BackFire#8-globalsts>Globals.ts</a>
-    <ul>
-      <li><a href=https://github.com/4rChon/BackFire#imports-5>Imports</a></li>
-      <li><a href=https://github.com/4rChon/BackFire#exports-7>Exports</a></li>
-      <li><a href=https://github.com/4rChon/BackFire#globals>Globals</a></li>
-    </ul
   </li>
 </ol>
 
