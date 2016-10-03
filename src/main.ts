@@ -6,7 +6,7 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
     systems.updateSystems();
     entities.updateEntities();
-}//
+}
 
 function main() {
     systems.addSystem(new PhysicsSystem());

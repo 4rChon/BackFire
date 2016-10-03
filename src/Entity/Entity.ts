@@ -41,7 +41,6 @@ class Entity implements IEntity {
         }
 
         for (let key in this.component) {
-            //if (key !== "Physics")
             this.component[key].update(this.attribute);
         }
     }

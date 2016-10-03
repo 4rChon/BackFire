@@ -184,9 +184,9 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Enemy", "active": true }),
             new Attribute("Transform", { "position": position, "dimensions": dimensions }),
             new Attribute("Sprite", { "color": "red" }),
-            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 4, "acceleration": 0, "drag": 1}),
+            new Attribute("Physics", { "mass": 10, "velocity": velocity, "force": force, "power": 4, "acceleration": 0, "drag": 1 }),
             new Attribute("Collision", { "collidingWith": {} })
-        ]
+        ];
 
         let enemy = new Entity(enemyComponents, enemyAttributes);
 
@@ -223,7 +223,7 @@ class GameSystem implements ISystem {
             new Attribute("Game", { "index": -1, "type": "Bullet", "active": true }),
             new Attribute("Transform", { "position": position, dimensions }),
             new Attribute("Sprite", { "color": "black" }),
-            new Attribute("Physics", { "mass": 2, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 5 }),
+            new Attribute("Physics", { "mass": 2, "velocity": velocity, "force": force, "power": 0, "acceleration": 0, "drag": 2 }),
             new Attribute("Collision", { "collidingWith": {} })
         ]
 
