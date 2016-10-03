@@ -31,12 +31,13 @@ class PhysicsSystem implements ISystem {
     update = (): void => {
         this.frameCount ++;
         this.state = SystemState.Update;
+
         let newTime = Date.now();
         let frameTime = newTime - this.currentTime;
+
         this.currentTime = newTime;        
         this.t += frameTime;
         this.fps = 1000 / frameTime;
-
         this.updateCount = frameTime / this.dt;
     }
 
@@ -52,8 +53,10 @@ class PhysicsSystem implements ISystem {
         let drag = (1 / 2) * fluidDensity * dragCoeff * transform.val["dimensions"].x;
         let dragX = drag * Math.pow(physics.val["velocity"].x, 2) * sign(physics.val["velocity"].x);
         let dragY = drag * Math.pow(physics.val["velocity"].y, 2) * sign(physics.val["velocity"].y);
+
         dragX = Math.abs(dragX) > 0 && Math.abs(dragX) < 0.2 ? 0.2 * sign(dragX) : dragX;
         dragY = Math.abs(dragY) > 0 && Math.abs(dragY) < 0.2 ? 0.2 * sign(dragY) : dragY;
+
         return new Vector(dragX, dragY);
     }
 }

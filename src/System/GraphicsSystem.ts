@@ -7,8 +7,8 @@ class GraphicsSystem implements ISystem {
     state: SystemState;
     canvasContext: CanvasRenderingContext2D;
 
-    physicsSystem: PhysicsSystem;
-    gameSystem: GameSystem;
+    private physicsSystem: PhysicsSystem;
+    private gameSystem: GameSystem;
 
     constructor() {
         this.id = "Graphics";

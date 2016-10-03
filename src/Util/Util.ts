@@ -12,14 +12,12 @@
     }
 
     setMagnitude = (magnitude: number): void => {
-        if (magnitude == 0)
+        if (magnitude === 0)
             this.zero();
         else {
             let ratio = magnitude / this.magnitude();
             console.log("Ratio: ", magnitude, "/", this.magnitude(), " = ", ratio);
         }
-        //this.x *= ratio;//magnitude * Math.cos(angle) * sign(this.x);
-        //this.y *= ratio;//magnitude * Math.sin(angle) * sign(this.y);
     }
 
     magSq = (): number => {
@@ -65,14 +63,7 @@
     }
 
     getAngle = (): number => {
-        let angle = Math.atan2(this.y, this.x);
-        return angle;
-        //if (this.x > 0 && this.y > 0)
-        //    return angle;
-        //if (this.x < 0 && this.y > 0)
-        //    return (Math.PI * 4) + angle;
-        //else
-        //    return Math.PI * 2 + angle;
+        return Math.atan2(this.y, this.x);
     }
 
     multiply = (value: number): void => {
@@ -92,6 +83,7 @@
 }
 
 let sign = (x: number): number => {
+    // fast sign hack
     return typeof x === "number" ? x ? x < 0 ? -1 : 1 : x === x ? 0 : NaN : NaN;
 }
 

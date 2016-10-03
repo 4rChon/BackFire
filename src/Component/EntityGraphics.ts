@@ -8,7 +8,7 @@ import {GraphicsSystem} from "../System/package";
 class EntityGraphics implements IComponent {
     id: string;
 
-    graphicsSystem: GraphicsSystem;
+    private graphicsSystem: GraphicsSystem;
 
     constructor() {
         this.id = "Graphics";

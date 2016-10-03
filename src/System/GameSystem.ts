@@ -65,7 +65,6 @@ class GameSystem implements ISystem {
                 let x = Math.floor((Math.random() * WIDTH) + 1);
                 let y = Math.floor((Math.random() * HEIGHT) + 1);
                 this.spawnEnemy(new Vector(x, y), new Vector(0, 0), new Vector(0, 0), new Vector(15, 15));
-                //this.spawnPickup(new Vector(WIDTH-x, HEIGHT-y), new Vector(0, 0), new Vector(0, 0), new Vector(25, 25));
                 this.spawnTimer = 0;
             }
         }
@@ -78,6 +77,7 @@ class GameSystem implements ISystem {
             this.currentScore--;
     }
 
+    // Score functions
     addScore = (score: number): void => {
         this.score += score * this.spawnAmount;
     }
@@ -94,6 +94,7 @@ class GameSystem implements ISystem {
         return this.currentScore;
     }
 
+    // Upgrade functions
     upgradePower = (): void => {
         if (this.score < this.weaponPowerCost) {
             console.log("Not enough score");
@@ -149,6 +150,7 @@ class GameSystem implements ISystem {
         this.spawnAmount++;
     }
 
+    // Spawn functions
     spawnPlayer = (position: Vector, velocity: Vector, force: Vector, dimensions: Vector): void => {
         let playerComponents = [
             new EntityPhysics(),

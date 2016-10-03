@@ -1,11 +1,15 @@
-﻿import {ISystem, SystemState} from "./System";
+﻿import {ISystem, GraphicsSystem, SystemState} from "./package";
+import {systems} from "../Globals";
 
 class InputSystem implements ISystem {
     id: string;
     state: SystemState;
 
+    private graphicsSystem: GraphicsSystem;
+
     keyCallback: { [keycode: number]: () => void; } = {};
     keyDown: { [keycode: number]: boolean; } = {};
+    mouse: {x: number, y: number};
 
     constructor() {
         this.id = "Input";
@@ -16,6 +20,10 @@ class InputSystem implements ISystem {
         this.state = SystemState.Init;
         document.addEventListener("keydown", this.keyboardDown);
         document.addEventListener("keyup", this.keyboardUp);
+        document.addEventListener("mousedown", this.mouseDown, false);
+        document.addEventListener("mouseup", this.mouseUp, false);
+
+        this.graphicsSystem = systems.getSystem("Graphics") as GraphicsSystem;
     }
 
     update = (): void => {
@@ -42,6 +50,14 @@ class InputSystem implements ISystem {
 
     keyboardUp = (event: KeyboardEvent): void => {
         this.keyDown[event.keyCode] = false;
+    }
+
+    mouseDown = (event: MouseEvent): void => {
+        this.mouse.x = event.x - this.graphicsSystem.canvasContext.canvas.offsetLeft;
+        this.mouse.y = event.y - this.graphicsSystem.canvasContext.canvas.offsetTop;
+    }
+
+    mouseUp = (event: MouseEvent): void => {
     }
 
     addKeycodeCallback = (keycode: number, f: () => void): void => {
