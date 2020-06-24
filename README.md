@@ -1,4 +1,9 @@
 # BackFire
+<h2>Controls</h2>
+<ul>
+  <li>WASD to Move</li>
+  <li>YUIO to Upgrade</li>
+</ul>
 
 <h2>Table of Contents</h2>
 <ol>
